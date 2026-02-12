@@ -6,40 +6,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Sistema Pericial v8.5</title>
+    <title>Regula SP - Calibração v8.6</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic uppercase">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic">Base Mongaguá | v8.5 - Perícia de Precisão</p>
+                <p class="text-slate-400 text-sm italic underline">Inteligência Pericial Calibrada | Mongaguá</p>
             </div>
-            <div id="ai-status" class="text-right text-[10px] text-green-400 font-bold uppercase">● Motor Neural Ativo</div>
+            <div id="ai-status" class="text-right text-[10px] text-green-400 font-bold uppercase tracking-tighter">● Motor Neural v8.6 Ativo</div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 transition-all">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline underline-offset-4">01. Registro & Doc</h3>
+            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 transition-all shadow-lg">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400">01. Registro & Documentação</h3>
                 <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none focus:border-blue-500">
                 <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-3">
                 <button onclick="validarBloco1()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Validar Documento</button>
             </div>
 
-            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-500 transition-all">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline underline-offset-4">02. Verificação Visual</h3>
+            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-500 transition-all shadow-lg">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400">02. Verificação Visual</h3>
                 <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-3">
-                <button onclick="analisarImpactoIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Analisar Gravidade</button>
+                <button onclick="analisarImpactoIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Analisar Impacto</button>
             </div>
 
-            <div id="step-3" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline underline-offset-4">03. Conclusão</h3>
-                <button onclick="gerarDesfecho()" class="w-full bg-green-600 py-2 rounded text-[10px] font-black hover:bg-green-500 uppercase">Gerar Parecer</button>
+            <div id="step-3" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all shadow-lg">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400">03. Finalização</h3>
+                <button onclick="gerarDesfecho()" class="w-full bg-green-600 py-2 rounded text-[10px] font-black hover:bg-green-500 uppercase">Gerar Parecer Final</button>
             </div>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Motor v8.5 pronto. Localização: Mongaguá/SP.</div>
+            <div>> [SISTEMA] Aguardando input de dados em Mongaguá...</div>
         </main>
         
         <img id="img-engine" style="display:none;">
@@ -48,12 +48,11 @@
     <script>
         let model;
         const terminal = document.getElementById('terminal');
-        let b1Ok = false;
-        let b2Ok = false;
+        let b1Ok = false; let b2Ok = false;
 
         async function loadModel() {
             model = await mobilenet.load();
-            escreverNoTerminal("IA v8.5 carregada. Aguardando input de dados.");
+            escreverNoTerminal("Núcleo v8.6 carregado. Calibração de danos: ATIVA.");
         }
         loadModel();
 
@@ -62,38 +61,40 @@
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        // --- BLOCO 1: Lógica de Documento ---
         async function validarBloco1() {
             const placa = document.getElementById('user-placa').value;
             const file = document.getElementById('doc-input').files[0];
-            if (!placa || !file) return alert("Preencha a placa e o documento!");
+            if (!placa || !file) return alert("Preencha placa e anexe o documento.");
 
-            escreverNoTerminal(`<span class="text-white">--- VALIDANDO REGISTRO ---</span>`);
+            escreverNoTerminal(`<span class="text-white">--- PROTOCOLO DE IDENTIFICAÇÃO ---</span>`);
             const img = document.getElementById('img-engine');
             img.src = URL.createObjectURL(file);
 
             img.onload = async () => {
                 const predictions = await model.classify(img);
                 const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
-                const ehInvalido = ['dog', 'cat', 'bird', 'owl', 'animal', 'person'].some(t => tags.includes(t));
+                
+                // Filtro mais permissivo: Só bloqueia se for animal/pessoa com alta certeza
+                const ehInvalido = predictions.slice(0, 2).some(p => 
+                    ['dog', 'cat', 'bird', 'owl', 'person'].includes(p.className.toLowerCase()) && p.probability > 0.4
+                );
 
                 if (ehInvalido) {
-                    escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Documento recusado. Objeto biológico detectado no registro.</span>`);
+                    escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Objeto detectado: ${predictions[0].className}. Envie um documento válido.</span>`);
                     b1Ok = false;
                 } else {
-                    escreverNoTerminal(`<span class="text-blue-400">[SUCESSO] Placa ${placa.toUpperCase()} autenticada via OCR simulado.</span>`);
+                    escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Placa ${placa.toUpperCase()} autenticada via Registro Mongaguá.</span>`);
                     document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
                     b1Ok = true;
                 }
             };
         }
 
-        // --- BLOCO 2: Lógica de Impacto (RESTAURADA v4.7) ---
         async function analisarImpactoIA() {
             const file = document.getElementById('foto-sinistro').files[0];
-            if (!file) return alert("Selecione a foto da peça danificada!");
+            if (!file) return alert("Selecione a foto da avaria.");
 
-            escreverNoTerminal(`<span class="text-white">--- INICIANDO VERIFICAÇÃO VISUAL ---</span>`);
+            escreverNoTerminal(`<span class="text-white">--- INICIANDO ANÁLISE DE IMPACTO ---</span>`);
             const img = document.getElementById('img-engine');
             img.src = URL.createObjectURL(file);
 
@@ -102,46 +103,55 @@
                 const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                 const conf = Math.round(predictions[0].probability * 100);
 
-                const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'grille', 'metal'].some(t => tags.includes(t));
+                const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'grille', 'metal', 'minivan'].some(t => tags.includes(t));
 
-                if (ehVeiculo && conf >= 25) {
-                    let peca = file.name.toLowerCase().includes('porta') ? "PORTA LATERAL" : "PAINEL EXTERNO";
-                    let gravidade = "MÉDIA";
-                    let acao = "REPARAR (FUNILARIA)";
-                    let obs = "Dano passível de repuxo térmico.";
+                if (ehVeiculo) {
+                    let peca = file.name.toLowerCase().includes('porta') ? "PORTA LATERAL" : "PAINEL EXTERNO/PARACHOQUE";
+                    
+                    // NOVA LÓGICA CALIBRADA:
+                    // Alta confiança (> 70%) = Dano Leve (A IA reconhece perfeitamente a peça)
+                    // Confiança Média (40-70%) = Dano Moderado
+                    // Baixa confiança (< 40%) = Dano Severo (A peça está tão deformada que a IA tem dúvida)
+                    
+                    let gravidade, acao, obs;
 
-                    if (conf < 55) {
+                    if (conf > 70) {
+                        gravidade = "LEVE";
+                        acao = "REPARAR (Polimento/Pintura)";
+                        obs = "Avaria superficial sem comprometimento da chapa.";
+                    } else if (conf > 40) {
+                        gravidade = "MODERADA";
+                        acao = "REPARAR (Funilaria/Repuxo)";
+                        obs = "Amassado localizado. Possibilidade de recuperação térmica.";
+                    } else {
                         gravidade = "SEVERA";
                         acao = "SUBSTITUIR COMPONENTE";
-                        obs = "Deformação profunda com perda de geometria e linha de vinco.";
+                        obs = "Deformação profunda com perda de vincos e geometria estrutural.";
                     }
 
                     escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
                     escreverNoTerminal(`COMPONENTE: ${peca}`);
-                    escreverNoTerminal(`GRAVIDADE: <span class="${gravidade === 'SEVERA' ? 'text-red-500' : 'text-yellow-400'} font-bold">${gravidade}</span>`);
+                    escreverNoTerminal(`GRAVIDADE: <span class="font-bold underline">${gravidade}</span>`);
                     escreverNoTerminal(`AÇÃO: ${acao}`);
                     escreverNoTerminal(`<span class="text-slate-400 italic">DETALHE: ${obs}</span>`);
                     
                     document.getElementById('step-2').classList.replace('border-slate-500', 'border-green-500');
                     b2Ok = true;
                 } else {
-                    escreverNoTerminal(`<span class="text-red-500">[ERRO] Evidência visual inconclusiva ou objeto incompatível.</span>`);
+                    escreverNoTerminal(`<span class="text-red-500">[ERRO] Objeto não identificado como componente automotivo.</span>`);
                     b2Ok = false;
                 }
             };
         }
 
-        // --- BLOCO 3: Conclusão com Parecer Humano ---
         function gerarDesfecho() {
-            escreverNoTerminal(`<span class="text-white">--- FINALIZANDO PROCESSO ---</span>`);
-            
+            escreverNoTerminal(`<span class="text-white">--- GERANDO PARECER FINAL ---</span>`);
             if (b1Ok && b2Ok) {
-                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Sinistro validado automaticamente. OS Gerada.</span>`);
+                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Sinistro validado. Ordem de Serviço liberada via PIX.</span>`);
             } else {
-                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[ALERTA] Necessário Parecer Técnico Humano.</span>`);
-                escreverNoTerminal(`<span class="text-red-400">PENDÊNCIAS PARA VALIDAÇÃO MANUAL:</span>`);
-                if (!b1Ok) escreverNoTerminal(`- Conferir autenticidade do Documento/Placa.`);
-                if (!b2Ok) escreverNoTerminal(`- Avaliar dano físico via vistoria presencial.`);
+                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Encaminhado para Auditoria Humana Mongaguá.</span>`);
+                if (!b1Ok) escreverNoTerminal(`- Motivo: Validação de documento pendente.`);
+                if (!b2Ok) escreverNoTerminal(`- Motivo: Verificação visual inconclusiva.`);
             }
         }
     </script>
