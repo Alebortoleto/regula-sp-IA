@@ -21,7 +21,11 @@ Atualmente, o projeto está a ser documentado por blocos modulares:
 - **Objetivo:** Análise automática de danos usando visão computacional.
 - **Tecnologias:** Detecção de objetos, análise de metadados e estimativa de custos por IA.
 - **Diferencial:** Guia de captura em tempo real e prevenção de fraudes visuais.
-
+  
+### [Bloco 3: Triagem e Encerramento](./bloco_3_encerramento_e_oficinas.json)
+- **Objetivo:** Encaminhamento para oficinas, logística e liquidação do sinistro.
+- **Tecnologias:** Algoritmos de recomendação, IA Generativa para laudos e integração com APIs de pagamento.
+- **Diferencial:** Aprovação instantânea (Fast Track) para casos de baixa complexidade.
 
 ## 🛠️ Tecnologias Sugeridas
 - **Backend:** Python (FastAPI)
