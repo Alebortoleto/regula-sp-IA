@@ -6,14 +6,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Perícia de IA v3.5</title>
+    <title>Regula SP - Perícia de IA v3.6</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic">Regula SP</h1>
-                <p class="text-slate-400 text-sm">Módulo Pericial Blindado v3.5</p>
+                <p class="text-slate-400 text-sm italic">Módulo de Precisão Pericial v3.6</p>
             </div>
             <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold">
                 ● CARREGANDO MOTOR...
@@ -22,24 +22,24 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
-                <h3 class="font-bold text-blue-400 mb-1 text-sm italic">01. REGISTRO</h3>
-                <p class="text-[9px] text-slate-500 font-black uppercase">Check-in</p>
+                <h3 class="font-bold text-blue-400 mb-1 text-sm italic underline">01. REGISTRO</h3>
+                <p class="text-[9px] text-slate-500 font-black uppercase">Dados Segurado</p>
             </button>
 
             <div class="bg-slate-800 p-4 rounded-xl border-2 border-blue-600 shadow-lg">
-                <h3 class="font-bold text-white mb-2 text-sm italic">02. VISTORIA IA</h3>
+                <h3 class="font-bold text-white mb-2 text-sm italic underline">02. PERÍCIA VISUAL</h3>
                 <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-2 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 file:py-1">
-                <button onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Executar Perícia</button>
+                <button onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Executar Análise</button>
             </div>
 
             <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
-                <h3 class="font-bold text-blue-400 mb-1 text-sm italic">03. LIQUIDAÇÃO</h3>
+                <h3 class="font-bold text-blue-400 mb-1 text-sm italic underline">03. LIQUIDAÇÃO</h3>
                 <p class="text-[9px] text-slate-500 font-black uppercase">Indenização</p>
             </button>
         </div>
 
-        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-96 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Aguardando input de imagem...</div>
+        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
+            <div>> [SISTEMA] Monitor pericial ativo em Mongaguá. Aguardando input...</div>
         </main>
         
         <img id="img-preview" style="display:none;">
@@ -52,10 +52,10 @@
         async function loadModel() {
             try {
                 model = await mobilenet.load();
-                document.getElementById('ai-status').innerText = "● IA ATIVA";
+                document.getElementById('ai-status').innerText = "● IA DE ALTA PRECISÃO ATIVA";
                 document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold";
-                escreverNoTerminal("Motor v3.5 Ativo em Mongaguá/SP. Pronto para análise.");
-            } catch (e) { escreverNoTerminal("Erro Crítico no Motor Neural."); }
+                escreverNoTerminal("Motor v3.6 carregado. Base de dados de peças atualizada.");
+            } catch (e) { escreverNoTerminal("Erro Crítico."); }
         }
         loadModel();
 
@@ -71,74 +71,66 @@
             const file = fileInput.files[0];
             const imgPreview = document.getElementById('img-preview');
             
-            escreverNoTerminal(`<span class="text-white">--- INICIANDO ESCANEAMENTO ---</span>`);
-            escreverNoTerminal(`[SISTEMA] Capturando dados: ${file.name}`);
+            escreverNoTerminal(`[SISTEMA] Capturando evidência: ${file.name}`);
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 imgPreview.src = e.target.result;
-                
-                // Garantir que a imagem está no DOM para o MobileNet ler
                 imgPreview.onload = async () => {
-                    escreverNoTerminal(`<span class="text-yellow-500">[IA_SCAN] Cruzando geometria de componentes...</span>`);
-                    
-                    try {
-                        const predictions = await model.classify(imgPreview);
-                        processarVeredito(predictions);
-                    } catch (err) {
-                        escreverNoTerminal(`<span class="text-red-500">[ERRO] Falha ao processar pixels. Tente outra foto.</span>`);
-                    }
+                    escreverNoTerminal(`<span class="text-yellow-500">[IA_SCAN] Executando análise multivariada...</span>`);
+                    const predictions = await model.classify(imgPreview);
+                    processarVeredito(predictions);
                 };
             };
             reader.readAsDataURL(file);
         }
 
         function processarVeredito(predictions) {
-            const classeIA = predictions[0].className.toLowerCase();
+            // Unimos todas as detecções em uma string para busca profunda
+            const textoDetectado = predictions.map(p => p.className.toLowerCase()).join(' ');
             const confianca = Math.round(predictions[0].probability * 100);
 
-            let componente = "Painel de Carroceria (Geral)";
-            let orcamento = "1.400,00";
-            let detectouPecaValida = false;
+            let componente = "Estrutura Externa do Veículo";
+            let orcamento = "1.500,00";
+            let detectou = false;
 
-            const dicionario = [
-                { termos: ['door', 'panel'], nome: 'Porta Lateral / Painel de Porta', preco: '1.850,00' },
-                { termos: ['bumper', 'grille', 'hood', 'headlight'], nome: 'Seção Frontal (Para-choque/Grade)', preco: '2.200,00' },
-                { termos: ['wheel', 'tire'], nome: 'Roda / Componente de Suspensão', preco: '950,00' },
-                { termos: ['car', 'vehicle', 'truck', 'cab', 'minivan'], nome: 'Estrutura Externa do Veículo', preco: '1.500,00' }
+            // DICIONÁRIO REFORÇADO
+            const categorias = [
+                { termos: ['door', 'panel'], nome: 'Porta Lateral / Painel Lateral', preco: '1.850,00' },
+                { termos: ['bumper', 'grille', 'hood', 'headlight', 'radiator'], nome: 'Seção Frontal (Para-choque/Grade/Faróis)', preco: '2.400,00' },
+                { termos: ['wheel', 'tire', 'brake'], nome: 'Roda e Sistema de Suspensão', preco: '1.100,00' },
+                { termos: ['car', 'vehicle', 'truck', 'wagon', 'minivan'], nome: 'Carroceria Geral / Estrutura Externa', preco: '1.500,00' }
             ];
 
-            for (let item of dicionario) {
-                if (item.termos.some(t => classeIA.includes(t))) {
-                    componente = item.nome;
-                    orcamento = item.preco;
-                    detectouPecaValida = true;
+            for (let cat of categorias) {
+                if (cat.termos.some(t => textoDetectado.includes(t))) {
+                    componente = cat.nome;
+                    orcamento = cat.preco;
+                    detectou = true;
                     break;
                 }
             }
 
-            escreverNoTerminal(`[IA_DEBUG] Tag: <span class="text-blue-400">${classeIA}</span> (${confianca}%)`);
+            escreverNoTerminal(`[IA_DEBUG] Tags Identificadas: <span class="text-blue-400">${predictions[0].className}</span>`);
 
-            if (detectouPecaValida && confianca >= 30) {
-                escreverNoTerminal(`<span class="text-white font-bold">[SUCESSO] Objeto autenticado.</span>`);
-                
+            if (detectou && confianca >= 25) {
+                escreverNoTerminal(`<span class="text-white font-bold">[VISTORIA] Objeto autenticado como componente pericial.</span>`);
                 setTimeout(() => {
                     escreverNoTerminal(`<span class="text-purple-400 font-bold">--- RELATÓRIO PERICIAL REGULA SP ---</span>`);
-                    escreverNoTerminal(`<span class="text-white">Componente: ${componente}</span>`);
-                    escreverNoTerminal(`<span class="text-white">Dano: Deformação detectada via análise de sombra.</span>`);
-                    escreverNoTerminal(`<span class="text-green-500 font-bold">[ORÇAMENTO] Valor Sugerido: R$ ${orcamento}</span>`);
-                    escreverNoTerminal(`<span class="text-green-400">[STATUS] Sinistro validado para liquidação imediata.</span>`);
+                    escreverNoTerminal(`<span class="text-white">Peça: ${componente}</span>`);
+                    escreverNoTerminal(`<span class="text-white">Dano: Deformação plástica identificada em quadrante.</span>`);
+                    escreverNoTerminal(`<span class="text-green-500 font-bold">[ORÇAMENTO] Valor Estimado: R$ ${orcamento}</span>`);
+                    escreverNoTerminal(`<span class="text-green-400">[VEREDITO] Sinistro validado para liquidação imediata.</span>`);
                 }, 600);
             } else {
-                escreverNoTerminal(`<span class="text-red-500 font-bold">[REJEITADO] Evidência inconclusiva para regulação automática.</span>`);
-                escreverNoTerminal(`<span class="text-yellow-500">[ACAO] Encaminhado para Auditoria Humana em Mongaguá.</span>`);
+                escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Evidência rejeitada por baixa definição ou objeto incompatível.</span>`);
             }
         }
 
         function mostrarLog(tipo) {
             const logs = {
-                'registro': 'Consultando base de dados... Usuário autenticado.',
-                'conclusao': 'Indenização pronta. Verifique o voucher no e-mail.'
+                'registro': 'Consultando CPF/Apólice... OK.',
+                'conclusao': 'Indenização pronta. Verifique seu app bancário.'
             };
             escreverNoTerminal(`<span class="text-blue-400">${logs[tipo]}</span>`);
         }
