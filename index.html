@@ -6,7 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Full Engine v10.2</title>
+    <title>Regula SP - Full Engine v10.3</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
@@ -21,7 +21,7 @@
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-<div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 shadow-lg transition-all duration-500">
+            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 shadow-lg transition-all duration-500">
                 <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">01. Registro & Dados</h3>
                 <div class="space-y-2">
                     <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
@@ -50,8 +50,9 @@
                 </div>
             </div>
         </div>
-<main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Motor v10.2 pronto. Aguardando autenticação...</div>
+
+        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
+            <div>> [SISTEMA] Motor v10.3 pronto. Aguardando autenticação...</div>
         </main>
         
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
@@ -67,7 +68,7 @@
                 model = await mobilenet.load();
                 document.getElementById('ai-status').innerText = "● LOCALIZAÇÃO: MONGAGUÁ/SP (OK)";
                 document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase tracking-tighter";
-                escreverNoTerminal("IA v10.2 Sincronizada. Filtros de consistência de dano ativos.");
+                escreverNoTerminal("IA v10.3 Sincronizada. Bloqueio de Falso PT ativado.");
             } catch (e) { escreverNoTerminal("Erro Crítico no Motor Neural."); }
         }
         loadModel();
@@ -101,17 +102,19 @@
                     const predictions = await model.classify(img);
                     const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                     const conf = Math.round(predictions[0].probability * 100);
-                    const ehVeiculo = ['car','wheel','vehicle','truck','door','bumper','grille','metal'].some(t => tags.includes(t));
-                    const pecaDet = tags.includes('door') || tags.includes('bumper') || tags.includes('grille');
+                    const pecaDet = ['bumper', 'grille', 'door', 'car', 'wheel', 'vehicle'].some(t => tags.includes(t));
 
-                    if (ehVeiculo) {
+                    if (pecaDet) {
                         let grav, acao, obs;
                         let peca = file.name.toLowerCase().includes('porta') ? "Porta Lateral" : "Para-choque/Painel";
+                        // Lógica de Proteção: Se detectou a peça, nunca dá PT direto por falta de confiança
                         if (conf > 70) { grav = "BAIXA"; acao = "REPARAR (Polimento)"; obs = "Dano superficial."; }
-                        else if (conf > 35 || pecaDet) {
-                            if (conf > 45) { grav = "MÉDIA"; acao = "REPARAR (Funilaria)"; obs = "Recuperação via repuxo."; }
-                            else { grav = "ALTA"; acao = "SUBSTITUIR COMPONENTE"; obs = "Dano em vinco estrutural."; }
-                        } else { grav = "CRÍTICA (APARENTE PT)"; acao = "ANÁLISE DE PERDA TOTAL"; obs = "Dano severo detectado."; }
+                        else if (conf > 30 || tags.includes('bumper') || tags.includes('grille')) {
+                            // PRIORIZA REPARO PARA PARA-CHOQUES
+                            grav = "MÉDIA"; acao = "REPARAR (Funilaria Técnica)"; obs = "Recuperação via repuxo plástico/térmico.";
+                        } else { 
+                            grav = "ALTA"; acao = "SUBSTITUIR COMPONENTE"; obs = "Dano em fixadores ou vinco estrutural."; 
+                        }
 
                         escreverNoTerminal(`[IA_DEBUG] Tag: ${predictions[0].className} (${conf}%)`);
                         escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
@@ -119,7 +122,12 @@
                         escreverNoTerminal(`AÇÃO: ${acao} | OBS: ${obs}`);
                         document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
                         b2Ok = true;
-                    } else { escreverNoTerminal(`<span class="text-red-500 font-bold">[ERRO] Evidência visual inconclusiva.</span>`); }
+                    } else { 
+                        // PT agora é o último recurso, apenas se não vir nada de carro
+                        escreverNoTerminal(`<span class="text-red-500 font-bold">--- PARECER TÉCNICO CRÍTICO ---</span>`);
+                        escreverNoTerminal(`GRAVIDADE: PERDA TOTAL (PT) | OBS: Dano estrutural severo ou objeto irreconhecível.`);
+                        b2Ok = true; // Permite concluir como PT
+                    }
                 };
             };
             reader.readAsDataURL(file);
@@ -128,11 +136,9 @@
         function concluir() {
             escreverNoTerminal(`<span class="text-white font-bold">--- FINALIZANDO PROCESSO ---</span>`);
             if (b1Ok && b2Ok) {
-                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Sinistro validado automaticamente em Mongaguá.</span>`);
+                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Sinistro finalizado com sucesso em Mongaguá.</span>`);
             } else {
-                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Fluxo incompleto. Necessário Parecer Humano.</span>`);
-                if(!b1Ok) escreverNoTerminal(`- Motivo: Validação de Registro/Documento pendente.`);
-                if(!b2Ok) escreverNoTerminal(`- Motivo: Verificação visual de dano não executada.`);
+                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Fluxo incompleto. Verifique os blocos 1 e 2.</span>`);
             }
         }
     </script>
