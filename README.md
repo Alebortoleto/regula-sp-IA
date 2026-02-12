@@ -7,9 +7,9 @@ Visualizar protótipo do painel: [CLIQUE AQUI PARA ACESSAR O APP](https://seu-us
 
 Os processos estão divididos em camadas lógicas para fácil implementação em backend (Python/Node):
 
-* **[Camada 1: Registro e Triagem](./logic/bloco_1_registro_logica.json)** - Autenticação e NLP.
-* **[Camada 2: Motor de Visão](./logic/bloco_2_vistoria_ia.json)** - Detecção de danos via Computer Vision.
-* **[Camada 3: Liquidação](./logic/bloco_3_encerramento_e_oficinas.json)** - Finalização e pagamento.
+* **[Camada 1: Registro e Triagem](./logic/bloco_1_registro_logica.json)**
+* **[Camada 2: Motor de Visão](./logic/bloco_2_vistoria_ia.json)**
+* **[Camada 3: Liquidação](./logic/bloco_3_encerramento_e_oficinas.json)**
 *
 * # Regula SP - Ecossistema de Regulação com IA 🚀
 
