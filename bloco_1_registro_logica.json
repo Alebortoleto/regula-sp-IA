@@ -1,0 +1,45 @@
+{
+  "header_config": {
+    "app_name": "Regula SP Digital",
+    "version": "2.0.0",
+    "environment": "production",
+    "security_layer": {
+      "biometric_required": true,
+      "geo_fencing": "active",
+      "anti_spoofing": "enabled"
+    }
+  },
+  "registration_logic": {
+    "step_1_identity": {
+      "input": "camera_stream",
+      "ai_task": "face_matching_with_government_db",
+      "failure_action": "manual_review_redirect",
+      "success_threshold": 0.95
+    },
+    "step_2_document_parsing": {
+      "input": "photo_upload",
+      "ai_task": "OCR_extract_metadata",
+      "target_fields": ["plate", "chassis", "crlv_number", "cnh_expiration"],
+      "validation": "cross_reference_insurance_policy_api"
+    },
+    "step_3_incident_intake": {
+      "input": ["voice_audio", "text_input"],
+      "ai_task": "NLP_sentiment_and_intent_analysis",
+      "outputs": {
+        "emergency_flag": "detect_keywords(fire, injury, police, dangerous_location)",
+        "summary": "generate_brief_incident_description",
+        "severity_score": "estimate_gravity_scale_1_to_10"
+      }
+    }
+  },
+  "automation_rules": [
+    {
+      "if": "severity_score < 3 && user_sentiment == 'calm'",
+      "then": "activate_fast_track_claim"
+    },
+    {
+      "if": "emergency_flag == true",
+      "then": "trigger_immediate_human_assistance"
+    }
+  ]
+}
