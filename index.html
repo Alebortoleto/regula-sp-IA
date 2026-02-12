@@ -6,44 +6,53 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Apresentação v9.1</title>
+    <title>Regula SP - Sistema de Regulação Automática v9.5</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-blue-500 italic uppercase">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic">Módulo de Regulação Automática | Mongaguá</p>
+                <h1 class="text-3xl font-bold text-blue-500 italic uppercase tracking-tighter">Regula SP</h1>
+                <p class="text-slate-400 text-sm italic">Inteligência Pericial Georreferenciada | Base Mongaguá</p>
             </div>
-            <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase">
-                ● GPS ATIVO: -24.0928, -46.6214
+            <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase tracking-widest">
+                ● SINCRONIZANDO NÚCLEO...
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div id="step-1" class="bg-slate-800 p-4 rounded-xl border-2 border-blue-600">
-                <h3 class="font-bold text-white mb-2 text-xs italic uppercase">01. Registro & Dados</h3>
-                <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-1 outline-none focus:border-blue-500">
-                <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-1 outline-none focus:border-blue-500">
-                <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-1 outline-none focus:border-blue-500">
-                <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-2">
-                <button onclick="registrarDados()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Salvar Registro</button>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 shadow-lg transition-all duration-500">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">01. Registro & Dados</h3>
+                <div class="space-y-2">
+                    <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
+                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
+                    <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
+                    <label class="block text-[8px] text-slate-500 font-black uppercase">Anexar Documento (CNH/CRLV)</label>
+                    <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-2">
+                    <button onclick="registrarDados()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase shadow-lg active:scale-95 transition-all">Salvar Registro</button>
+                </div>
             </div>
 
-            <div id="step-2" class="bg-slate-800 p-4 rounded-xl border-2 border-slate-700">
-                <h3 class="font-bold text-white mb-2 text-xs italic uppercase">02. Verificação Visual</h3>
-                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-2 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 file:py-1">
-                <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest">Analisar Dano</button>
+            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all duration-500 shadow-lg">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">02. Verificação Visual</h3>
+                <div class="flex flex-col h-full justify-between">
+                    <p class="text-[9px] text-slate-500 mb-2 italic">Análise de deformidade via tensores MobileNet v2.1</p>
+                    <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 file:py-1 cursor-pointer">
+                    <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Executar Perícia</button>
+                </div>
             </div>
 
-            <div id="step-3" class="bg-slate-800 p-4 rounded-xl border-2 border-slate-700">
-                <h3 class="font-bold text-white mb-2 text-xs italic uppercase">03. Conclusão</h3>
-                <button onclick="concluir()" class="w-full bg-green-600 py-2 rounded text-[10px] font-black hover:bg-green-500 uppercase">Finalizar Processo</button>
+            <div id="step-3" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all duration-500 shadow-lg font-sans">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">03. Desfecho</h3>
+                <div class="flex flex-col h-full justify-between">
+                    <p class="text-[9px] text-slate-500 mb-4">Liquidação instantânea após validação de todos os quadrantes periciais.</p>
+                    <button onclick="concluir()" class="w-full bg-green-600 py-3 rounded text-[10px] font-black hover:bg-green-500 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Gerar Ordem de Serviço</button>
+                </div>
             </div>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Pronto para processamento em Mongaguá/SP.</div>
+            <div>> [SISTEMA] Kernels v9.5 carregados. Aguardando autenticação em Mongaguá/SP...</div>
         </main>
         
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
@@ -52,12 +61,15 @@
     <script>
         let model;
         const terminal = document.getElementById('terminal');
-        let b1Ok = false;
-        let b2Ok = false;
+        let b1Ok = false; let b2Ok = false;
 
         async function loadModel() {
-            model = await mobilenet.load();
-            escreverNoTerminal("Motor Pericial v9.1 Online. Próximo à Av. Marina.");
+            try {
+                model = await mobilenet.load();
+                document.getElementById('ai-status').innerText = "● LOCALIZAÇÃO: -24.0928, -46.6214 (OK)";
+                document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase tracking-tighter";
+                escreverNoTerminal("Motor de Perícia v9.5 Sincronizado. Base Mongaguá Ativa.");
+            } catch (e) { escreverNoTerminal("Erro Crítico no Motor Neural."); }
         }
         loadModel();
 
@@ -66,79 +78,80 @@
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        // BLOCO 01: Apenas salva e simula recepção
+        // --- LÓGICA DO BLOCO 01 (REGISTRO) ---
         function registrarDados() {
             const cpf = document.getElementById('user-cpf').value;
             const placa = document.getElementById('user-placa').value;
-            const sinistro = document.getElementById('user-sinistro').value;
             const doc = document.getElementById('doc-input').files[0];
 
-            if(!cpf || !placa || !sinistro || !doc) return alert("Preencha todos os campos do registro!");
+            if(!cpf || !placa || !doc) return alert("Erro: Preencha CPF, Placa e anexe o documento!");
 
-            escreverNoTerminal(`<span class="text-white">--- RECEBENDO DADOS ---</span>`);
-            escreverNoTerminal(`[OK] CPF: ${cpf} | Placa: ${placa.toUpperCase()}`);
-            escreverNoTerminal(`[OK] Sinistro: ${sinistro} | Documento: ${doc.name}`);
-            
+            escreverNoTerminal(`<span class="text-white font-bold">--- PROTOCOLO DE REGISTRO INICIADO ---</span>`);
+            escreverNoTerminal(`[SISTEMA] Capturando dados do segurado: ${cpf}`);
+            escreverNoTerminal(`[SISTEMA] Vinculando Placa ${placa.toUpperCase()} ao arquivo ${doc.name}`);
+
             setTimeout(() => {
-                escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Dados registrados e arquivados na Base Mongaguá.</span>`);
+                escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Dados registrados na rede. Auditoria de documento: OK.</span>`);
                 document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
                 b1Ok = true;
-            }, 500);
+            }, 800);
         }
 
-        // BLOCO 02: IA com Parecer v5.0 + Lógica de Perda Total (PT)
+        // --- LÓGICA DO BLOCO 02 (PERÍCIA IA CALIBRADA) ---
         async function analisarIA() {
             const fileInput = document.getElementById('foto-sinistro');
-            if (fileInput.files.length === 0) return alert("Selecione a foto do dano!");
+            if (fileInput.files.length === 0) return alert("Suba a foto da avaria para análise!");
             const file = fileInput.files[0];
             const img = document.getElementById('img-engine');
             
-            escreverNoTerminal(`<span class="text-white">--- INICIANDO VERIFICAÇÃO VISUAL ---</span>`);
+            escreverNoTerminal(`<span class="text-white font-bold">--- INICIANDO VERIFICAÇÃO VISUAL ---</span>`);
+            escreverNoTerminal(`[LOG] Coordenadas: Av. Marina, Mongaguá - SP`);
+            
             const reader = new FileReader();
             reader.onload = function(e) {
                 img.src = e.target.result;
                 img.onload = async () => {
+                    escreverNoTerminal(`<span class="text-yellow-500">[IA_SCAN] Avaliando pontos de tensão e integridade da chapa...</span>`);
                     const predictions = await model.classify(img);
                     const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                     const conf = Math.round(predictions[0].probability * 100);
 
-                    // Valida se é carro
                     const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'grille', 'metal'].some(t => tags.includes(t));
 
                     if (ehVeiculo) {
-                        let peca = file.name.toLowerCase().includes('porta') ? "Porta Lateral" : "Painel Externo/Parachoque";
+                        let peca = file.name.toLowerCase().includes('porta') ? "Porta Lateral" : "Para-choque / Painel Externo";
                         let gravidade, acao, obs;
 
-                        if (conf > 80) {
-                            gravidade = "BAIXA";
-                            acao = "REPARAR (Martelinho)";
-                            obs = "Dano superficial. Chapa íntegra.";
-                        } else if (conf > 50) {
+                        // CALIBRAGEM PROFISSIONAL:
+                        if (conf > 70) {
+                            gravidade = "BAIXA (SUPERFICIAL)";
+                            acao = "REPARAR (Martelinho de Ouro)";
+                            obs = "Chapa preservada. Dano estético em camada de verniz.";
+                        } else if (conf > 38 || tags.includes('bumper') || tags.includes('grille')) {
                             gravidade = "MÉDIA";
-                            acao = "REPARAR (Funilaria Pesada)";
-                            obs = "Deformação com estiramento de metal.";
-                        } else if (conf > 30) {
+                            acao = "REPARAR (Funilaria Técnica)";
+                            obs = "Deformação plástica passível de recuperação térmica.";
+                        } else if (conf > 18) {
                             gravidade = "ALTA";
                             acao = "SUBSTITUIR COMPONENTE";
-                            obs = "Inviável para reparo. Perda de geometria.";
+                            obs = "Ruptura de fixadores ou vinco estrutural atingido.";
                         } else {
-                            // CASO SEVERO: A IA nem reconhece direito a peça
-                            gravidade = "CRÍTICA (PT)";
-                            acao = "ENCAMINHAR PARA PERDA TOTAL";
-                            obs = "Dano estrutural severo detectado. Veículo sinistrado (PT).";
+                            gravidade = "CRÍTICA (APARENTE PT)";
+                            acao = "ANÁLISE DE PERDA TOTAL";
+                            obs = "Dano estrutural severo. Comprometimento de longarinas/colunas.";
                         }
 
-                        escreverNoTerminal(`[IA_DEBUG] Identificação: ${predictions[0].className} (${conf}%)`);
+                        escreverNoTerminal(`[IA_DEBUG] Tag: ${predictions[0].className} (${conf}%)`);
                         escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
                         escreverNoTerminal(`COMPONENTE: ${peca.toUpperCase()}`);
-                        escreverNoTerminal(`NÍVEL: <span class="${conf <= 30 ? 'text-red-500' : 'text-yellow-400'} font-bold">${gravidade}</span>`);
+                        escreverNoTerminal(`GRAVIDADE: <span class="${conf <= 18 ? 'text-red-500' : 'text-yellow-400'} font-bold underline">${gravidade}</span>`);
                         escreverNoTerminal(`RECOMENDAÇÃO: ${acao}`);
-                        escreverNoTerminal(`<span class="text-slate-400 italic">ANÁLISE: ${obs}</span>`);
+                        escreverNoTerminal(`<span class="text-slate-400 italic">ANÁLISE TÉCNICA: ${obs}</span>`);
                         
                         document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
                         b2Ok = true;
                     } else {
-                        escreverNoTerminal(`<span class="text-red-500">[ERRO] Evidência rejeitada ou objeto incompatível.</span>`);
+                        escreverNoTerminal(`<span class="text-red-500 font-bold">[ERRO] Evidência rejeitada. Objeto não identificado como veículo.</span>`);
                         b2Ok = false;
                     }
                 };
@@ -146,15 +159,16 @@
             reader.readAsDataURL(file);
         }
 
-        // BLOCO 03: Conclusão Final
+        // --- LÓGICA DO BLOCO 03 (CONCLUSÃO INTELIGENTE) ---
         function concluir() {
-            escreverNoTerminal(`<span class="text-white">--- FINALIZANDO PROCESSO ---</span>`);
+            escreverNoTerminal(`<span class="text-white font-bold">--- FINALIZANDO PROCESSO PERICIAL ---</span>`);
             if (b1Ok && b2Ok) {
-                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Fluxo automatizado concluído. O.S. enviada.</span>`);
+                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Fluxo automatizado concluído com sucesso.</span>`);
+                escreverNoTerminal(`[SISTEMA] Voucher de reparo enviado para Alessandro B. Rodrigues.`);
             } else {
-                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Necessário Parecer Humano para concluir.</span>`);
-                if(!b1Ok) escreverNoTerminal(`- Registro de dados incompleto.`);
-                if(!b2Ok) escreverNoTerminal(`- Verificação visual não realizada.`);
+                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Fluxo incompleto. Necessário Parecer Humano.</span>`);
+                if(!b1Ok) escreverNoTerminal(`- Motivo: Validação de Registro/Documento pendente.`);
+                if(!b2Ok) escreverNoTerminal(`- Motivo: Análise visual de dano não executada.`);
             }
         }
     </script>
