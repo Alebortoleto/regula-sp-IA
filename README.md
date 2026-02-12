@@ -1,5 +1,5 @@
 ## 🌐 Demonstração Online
-Visualizar protótipo do painel: **[CLIQUE AQUI PARA ACESSAR O APP](COLE_AQUI_O_LINK_QUE_O_GITHUB_GEROU)**
+Visualizar protótipo do painel: [CLIQUE AQUI PARA ACESSAR O APP](https://seu-usuario.github.io/regula-sp-IA/)**
 
 ---
 
