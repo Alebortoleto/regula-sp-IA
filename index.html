@@ -22,34 +22,39 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition-all text-left">
                 <h3 class="font-bold text-blue-400 mb-2">1. Registro</h3>
-                <p class="text-[10px] text-slate-400">Validar CNH e Relato de Voz</p>
+                <p class="text-[10px] text-slate-400">Validar CNH e Biometria</p>
             </button>
 
             <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-all">
                 <h3 class="font-bold text-blue-400 mb-2">2. Vistoria IA</h3>
-                <p class="text-[10px] text-slate-400 mb-3">Suba a foto do dano:</p>
+                <p class="text-[10px] text-slate-400 mb-3">Análise de Evidência Visual:</p>
                 <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-500 file:text-white mb-2">
-                <button onclick="simularAnaliseFoto()" class="w-full bg-blue-600 py-1 rounded text-[10px] font-bold hover:bg-blue-500 transition-colors">ANALISAR IMAGEM</button>
+                <button onclick="simularAnaliseFoto()" class="w-full bg-blue-600 py-1 rounded text-[10px] font-bold hover:bg-blue-500 transition-colors">EXECUTAR VISÃO COMPUTACIONAL</button>
             </div>
 
             <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition-all text-left">
                 <h3 class="font-bold text-blue-400 mb-2">3. Conclusão</h3>
-                <p class="text-[10px] text-slate-400">Finalizar e Gerar Voucher</p>
+                <p class="text-[10px] text-slate-400">Liquidação e Voucher</p>
             </button>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-xs leading-relaxed">
-            <div class="text-blue-500">> Sistema iniciado. Aguardando interação...</div>
+            <div class="text-blue-500">> Interface de Regulação Iniciada. Aguardando input do campo...</div>
         </main>
     </div>
 
     <script>
         const terminal = document.getElementById('terminal');
 
+        function escreverNoTerminal(texto) {
+            terminal.innerHTML += `<div class="mt-3 border-l border-slate-800 pl-2 font-mono">${texto}</div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
         function mostrarLog(tipo) {
             const logs = {
-                'registro': '<span class="text-yellow-500">[SISTEMA]</span> Lendo logic/bloco_1_registro...<br><span class="text-green-500">[IA]</span> Biometria ok. Documentos validados com sucesso.',
-                'conclusao': '<span class="text-yellow-500">[FINANCEIRO]</span> Verificando apólice...<br><span class="text-green-500">[IA]</span> Sinistro aprovado. Oficina credenciada em Mongaguá notificada.'
+                'registro': '<span class="text-yellow-500">[SISTEMA]</span> Consultando base logic/bloco_1...<br><span class="text-green-500">[IA]</span> Documentação validada. Motorista habilitado.',
+                'conclusao': '<span class="text-yellow-500">[DECISÃO]</span> Aplicando regras do bloco_3...<br><span class="text-blue-400">[IA]</span> Sinistro de baixa complexidade. Enviando ordem de serviço para oficina credenciada.'
             };
             escreverNoTerminal(logs[tipo]);
         }
@@ -57,24 +62,34 @@
         function simularAnaliseFoto() {
             const fileInput = document.getElementById('foto-sinistro');
             if (fileInput.files.length === 0) {
-                alert("Selecione uma foto do veículo antes!");
+                alert("Por favor, selecione uma imagem para análise.");
                 return;
             }
 
-            const nomeArquivo = fileInput.files[0].name;
-            escreverNoTerminal(`<span class="text-blue-400">[UPLOAD]</span> Enviando ${nomeArquivo} para o motor de visão...`);
+            const arquivo = fileInput.files[0];
+            const nomeArquivo = arquivo.name.toLowerCase();
+            const tamanhoKB = arquivo.size / 1024;
+
+            escreverNoTerminal(`<span class="text-blue-400">[UPLOAD]</span> Analisando metadados de: ${nomeArquivo}`);
 
             setTimeout(() => {
-                escreverNoTerminal(`<span class="text-purple-400">[IA_VISION]</span> Analisando pixels e profundidade de danos...`);
-                setTimeout(() => {
-                    escreverNoTerminal(`<span class="text-white font-bold">[RESULTADO]</span> Dano identificado: Amassado em porta lateral.<br><span class="text-white font-bold">[ORÇAMENTO]</span> Mão de obra + Peça: R$ 1.450,00.`);
-                }, 1500);
-            }, 1000);
-        }
+                // LÓGICA DE FILTRO REALÍSTICA (Heurística)
+                // Lista de termos que sugerem que a foto NÃO é de um veículo ou é genérica demais
+                const termosInvalidos = ['dog', 'cachorro', 'pet', 'animal', 'comida', 'selfie', 'print', 'screenshot'];
+                const ehSuspeito = termosInvalidos.some(termo => nomeArquivo.includes(termo));
 
-        function escreverNoTerminal(texto) {
-            terminal.innerHTML += `<div class="mt-3 border-l border-slate-800 pl-2">${texto}</div>`;
-            terminal.scrollTop = terminal.scrollHeight;
+                if (ehSuspeito || tamanhoKB < 40) {
+                    escreverNoTerminal(`<span class="text-red-500 font-bold">[ALERTA DE SEGURANÇA]</span>`);
+                    escreverNoTerminal(`<span class="text-red-400 italic">Inconsistência detectada: O objeto na imagem não possui características geométricas de um veículo sinistrado.</span>`);
+                    escreverNoTerminal(`<span class="text-yellow-500">[SISTEMA]</span> Registro de incidente enviado para auditoria humana por possível "False Positive".`);
+                } else {
+                    escreverNoTerminal(`<span class="text-purple-400">[IA_VISION]</span> Mapeando pontos de impacto...`);
+                    setTimeout(() => {
+                        escreverNoTerminal(`<span class="text-white font-bold">[ANÁLISE]</span> Veículo: Detectado.<br><span class="text-white font-bold">[DANO]</span> Deformação plástica em painel externo identificado.`);
+                        escreverNoTerminal(`<span class="text-green-500">[INFO]</span> Foto validada com sucesso via rede neural local.`);
+                    }, 1500);
+                }
+            }, 1000);
         }
     </script>
 </body>
