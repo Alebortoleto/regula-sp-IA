@@ -7,11 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <title>Regula SP - Parecer de IA v12.7</title>
+    <title>Regula SP - Parecer de IA v12.9</title>
     <style>
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; border: 2px solid #0f172a; }
+        .damage-off { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans pb-20">
@@ -20,9 +21,9 @@
         <div class="bg-slate-800 p-8 rounded-2xl border-2 border-blue-600 shadow-2xl max-w-sm w-full">
             <h2 class="text-2xl font-bold text-blue-500 italic mb-1 uppercase tracking-tighter text-center">Área do Gestor</h2>
             <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest text-center italic">Base Mongaguá/SP</p>
-            <input type="text" id="login-user" placeholder="Usuário (ADM)" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-3 outline-none focus:border-blue-500">
+            <input type="text" id="login-user" placeholder="Usuário" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-3 outline-none focus:border-blue-500">
             <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-6 outline-none focus:border-blue-500">
-            <button onclick="autenticar()" class="w-full bg-blue-600 py-3 rounded font-black text-xs hover:bg-blue-500 uppercase tracking-widest shadow-xl transition-all">Acessar Painel</button>
+            <button onclick="autenticar()" class="w-full bg-blue-600 py-3 rounded font-black text-xs hover:bg-blue-500 uppercase tracking-widest transition-all shadow-xl">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -30,86 +31,74 @@
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-4xl font-black text-blue-500 italic uppercase tracking-tighter">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic uppercase tracking-widest">Módulo de Vistoria Multi-Setorial</p>
+                <p class="text-slate-400 text-sm italic uppercase tracking-widest">Parecer de IA Georreferenciado</p>
             </div>
-            <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-3 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase font-mono tracking-widest">● GPS MONGAGUÁ: -24.0928, -46.6214</div>
+            <div class="flex gap-4 items-center">
+                <button onclick="resetGeral()" class="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-3 py-2 rounded text-[9px] font-black uppercase transition-all border border-red-600/30">Limpar Tudo</button>
+                <div class="text-right text-[10px] bg-slate-800 p-3 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase font-mono tracking-widest">● MONGAGUÁ: -24.0928, -46.6214</div>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div id="step-1" class="bg-slate-800 p-6 rounded-xl border-2 border-blue-600 shadow-lg">
-                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">01. Dados do Sinistro</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div id="step-1" class="bg-slate-800 p-6 rounded-xl border-2 border-blue-600 shadow-lg md:col-span-1">
+                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">01. Cadastro</h3>
                 <div class="space-y-3">
-                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
+                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none">
                     <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none">
                     <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none">
-                    <label class="text-[8px] text-slate-500 block font-bold uppercase italic">Anexo de Documento Obrigatório</label>
                     <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500">
                     <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase transition-all shadow-lg active:scale-95">Salvar Registro</button>
                 </div>
             </div>
 
-            <div id="box-esq" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
-                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">02. Lateral Esquerda</h3>
-                <input type="file" id="foto-esq" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4" onchange="previewFoto('esq')">
-                <div id="preview-esq" class="hidden mb-2 text-[8px] text-green-500 font-bold tracking-widest">● IMAGEM CARREGADA</div>
-                <button id="btn-esq" onclick="analisarComRigor('esq')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700 hover:border-blue-500 transition-all">Avaliar</button>
-                <div id="prog-esq" class="mt-4 hidden space-y-1">
-                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-esq" class="bg-blue-500 h-1 w-0 transition-all"></div></div>
-                    <p id="status-esq" class="text-[7px] text-blue-400 italic uppercase">Processando...</p>
-                </div>
-            </div>
-
-            <div id="box-dir" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
-                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">03. Lateral Direita</h3>
-                <input type="file" id="foto-dir" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4" onchange="previewFoto('dir')">
-                <div id="preview-dir" class="hidden mb-2 text-[8px] text-green-500 font-bold tracking-widest">● IMAGEM CARREGADA</div>
-                <button id="btn-dir" onclick="analisarComRigor('dir')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700 hover:border-blue-500 transition-all">Avaliar</button>
-                <div id="prog-dir" class="mt-4 hidden space-y-1">
-                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-dir" class="bg-blue-500 h-1 w-0 transition-all"></div></div>
-                    <p id="status-dir" class="text-[7px] text-blue-400 italic uppercase">Processando...</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div id="box-front" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
-                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">04. Região Frontal</h3>
-                <input type="file" id="foto-front" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4">
-                <button onclick="analisarComRigor('front')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700">Avaliar</button>
-                <div id="prog-front" class="mt-4 hidden space-y-1">
-                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-front" class="bg-blue-500 h-1 w-0 transition-all"></div></div>
-                </div>
-            </div>
-            <div id="box-rear" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
-                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">05. Região Traseira</h3>
-                <input type="file" id="foto-rear" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4">
-                <button onclick="analisarComRigor('rear')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700">Avaliar</button>
-                <div id="prog-rear" class="mt-4 hidden space-y-1">
-                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-rear" class="bg-blue-500 h-1 w-0 transition-all"></div></div>
-                </div>
+            <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <script>
+                    const setores = [
+                        {id: 'esq', label: 'Lateral Esquerda'},
+                        {id: 'dir', label: 'Lateral Direita'},
+                        {id: 'front', label: 'Região Frontal'},
+                        {id: 'rear', label: 'Região Traseira'}
+                    ];
+                    setores.forEach(s => {
+                        document.write(`
+                            <div id="box-${s.id}" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 shadow-md relative transition-all">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-bold text-white text-[10px] italic uppercase text-blue-400">${s.label}</h3>
+                                    <button onclick="setNoDamage('${s.id}')" id="btn-nodamage-${s.id}" class="text-[7px] bg-slate-700 hover:bg-green-600 px-2 py-1 rounded font-black uppercase transition-all">Não há danos</button>
+                                </div>
+                                <div id="area-${s.id}" class="space-y-3">
+                                    <input type="file" id="foto-${s.id}" accept="image/*" multiple class="w-full text-[9px] text-slate-500 mb-2">
+                                    <button onclick="analisarSetor('${s.id}')" class="w-full bg-slate-900 py-2 rounded text-[9px] font-black uppercase border border-slate-700 hover:border-blue-500">Avaliar Fotos</button>
+                                    <div id="prog-${s.id}" class="hidden"><div class="w-full bg-black h-1 rounded-full"><div id="bar-${s.id}" class="bg-blue-500 h-1 w-0 transition-all"></div></div></div>
+                                    <div id="count-${s.id}" class="text-[7px] text-blue-400 font-bold uppercase"></div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
             </div>
         </div>
 
         <div id="step-6" class="bg-slate-800 p-8 rounded-xl border-2 border-slate-700 shadow-2xl mb-8">
-            <h3 class="font-bold text-white mb-6 text-[12px] italic uppercase text-green-400 underline underline-offset-8 decoration-2">06. Consolidação de Parecer</h3>
+            <h3 class="font-bold text-white mb-6 text-[12px] italic uppercase text-green-400 underline underline-offset-8 decoration-2">06. Parecer de IA Consolidado</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div class="bg-black/40 p-5 rounded-lg border border-slate-700 space-y-4">
-                    <div class="flex justify-between text-[10px] uppercase font-bold"><span class="text-slate-400">Índice de Avarias:</span> <span id="score-total" class="text-white">-- %</span></div>
+                    <div class="flex justify-between text-[10px] uppercase font-bold"><span class="text-slate-400">Índice Geral de Avarias:</span> <span id="score-total" class="text-white">-- %</span></div>
                     <div class="w-full bg-slate-900 rounded-full h-3"><div id="bar-total" class="bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 h-3 rounded-full w-0 transition-all duration-1000"></div></div>
                 </div>
                 <div class="text-center p-4 border-2 border-dashed border-slate-700 rounded-lg">
-                    <p class="text-[9px] text-slate-500 italic uppercase mb-2">Parecer de IA Consolidado:</p>
-                    <div id="status-final" class="text-2xl font-black italic uppercase tracking-tighter text-slate-600">AGUARDANDO DADOS</div>
+                    <p class="text-[9px] text-slate-500 italic uppercase mb-2">Parecer Final:</p>
+                    <div id="status-final" class="text-2xl font-black italic uppercase tracking-tighter text-slate-600">AGUARDANDO ANALISES</div>
                 </div>
             </div>
             <div class="mt-8 flex flex-col md:flex-row gap-4 justify-center">
-                <button onclick="consolidarResultados()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl transition-all">Consolidar Parecer de IA</button>
-                <button id="btn-pdf-final" onclick="gerarPDFFinal()" class="hidden bg-green-600 hover:bg-green-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl animate-bounce">Gerar Documento (PDF)</button>
+                <button onclick="consolidarResultados()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl transition-all">Processar Parecer</button>
+                <button id="btn-pdf-final" onclick="gerarPDFFinal()" class="hidden bg-green-600 hover:bg-green-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl animate-bounce">Gerar PDF</button>
             </div>
         </div>
 
-        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 h-40 overflow-y-auto font-mono text-[10px] text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Motor v12.7 Mongaguá iniciado.</div>
+        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 h-32 overflow-y-auto font-mono text-[10px] text-green-500 border-t-4 border-t-blue-500">
+            <div>> [SISTEMA] Motor v12.9 Master pronto em Mongaguá.</div>
         </main>
         
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
@@ -119,7 +108,7 @@
         let model; let historico = []; let isLogged = false; let b1Ok = false;
         const terminal = document.getElementById('terminal');
 
-        async function loadModel() { model = await mobilenet.load(); escreverNoTerminal("IA Pronta para Análise."); }
+        async function loadModel() { model = await mobilenet.load(); escreverNoTerminal("IA MobileNet Sincronizada."); }
         loadModel();
 
         function escreverNoTerminal(t) { terminal.innerHTML += `<div class="mt-1">> ${t}</div>`; terminal.scrollTop = terminal.scrollHeight; }
@@ -128,111 +117,131 @@
             if(document.getElementById('login-user').value === "ADM" && document.getElementById('login-pass').value === "123Pin567Pin") {
                 isLogged = true; document.getElementById('login-modal').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('blur-md');
-                escreverNoTerminal("ADM Logado em Mongaguá/SP.");
-            } else alert("Credenciais Incorretas!");
+                escreverNoTerminal("Gestor Autenticado.");
+            } else alert("Acesso Negado!");
+        }
+
+        function resetGeral() {
+            if(!confirm("Deseja apagar todas as fotos e registros atuais?")) return;
+            historico = [];
+            setores.forEach(s => {
+                document.getElementById(`area-${s.id}`).classList.remove('damage-off');
+                document.getElementById(`btn-nodamage-${s.id}`).classList.replace('bg-green-600', 'bg-slate-700');
+                document.getElementById(`box-${s.id}`).classList.replace('border-green-500', 'border-slate-700');
+                document.getElementById(`count-${s.id}`).innerText = "";
+            });
+            document.getElementById('score-total').innerText = "-- %";
+            document.getElementById('bar-total').style.width = "0%";
+            document.getElementById('status-final').innerText = "AGUARDANDO ANALISES";
+            document.getElementById('btn-pdf-final').classList.add('hidden');
+            escreverNoTerminal("Sessão limpa. Novos registros podem ser feitos.");
         }
 
         function registrar() {
-            const placa = document.getElementById('user-placa').value;
-            const cpf = document.getElementById('user-cpf').value;
-            const sinistro = document.getElementById('user-sinistro').value;
-            const doc = document.getElementById('doc-input').files[0];
-
-            if(!isLogged) return;
-            if(!placa || !cpf || !sinistro || !doc) {
-                return alert("ATENÇÃO: É obrigatório preencher Placa, CPF, Nº do Sinistro e anexar o Documento!");
-            }
-
-            b1Ok = true;
-            escreverNoTerminal(`[REGISTRO] Dados salvos: Placa ${placa.toUpperCase()}.`);
+            if(!document.getElementById('user-placa').value || !document.getElementById('doc-input').files[0]) return alert("Preencha Placa e Documento!");
+            b1Ok = true; escreverNoTerminal("Registro de Sinistro Sincronizado.");
             document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
         }
 
-        function previewFoto(lado) { document.getElementById(`preview-${lado}`).classList.remove('hidden'); }
-
-        async function analisarComRigor(lado) {
-            if(!b1Ok) return alert("Erro: Preencha todos os campos do Bloco 01 primeiro!");
-            const input = document.getElementById(`foto-${lado === 'esq' ? 'esq' : lado === 'dir' ? 'dir' : lado === 'front' ? 'front' : 'rear'}`);
-            if(!input || !input.files[0]) return alert("Selecione a imagem deste setor!");
+        function setNoDamage(id) {
+            const btn = document.getElementById(`btn-nodamage-${id}`);
+            const area = document.getElementById(`area-${id}`);
+            const box = document.getElementById(`box-${id}`);
             
-            const prog = document.getElementById(`prog-${lado}`);
-            const bar = document.getElementById(`bar-${lado}`);
-            if(prog) prog.classList.remove('hidden');
+            historico = historico.filter(h => h.setor !== id);
+            historico.push({ setor: id, parecer: "SEM DANOS DETECTADOS", valor: 0, imgData: null, isSafe: true });
             
-            for(let i=0; i<=100; i+=25) {
-                if(bar) bar.style.width = i + '%';
-                await new Promise(r => setTimeout(r, 400));
-            }
+            btn.classList.replace('bg-slate-700', 'bg-green-600');
+            area.classList.add('damage-off');
+            box.classList.replace('border-slate-700', 'border-green-500');
+            escreverNoTerminal(`[SISTEMA] Setor ${id.toUpperCase()} declarado como INTACTO.`);
+        }
 
-            const img = document.getElementById('img-engine');
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                img.src = e.target.result;
-                img.onload = async () => {
-                    const predictions = await model.classify(img);
-                    const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
-                    const conf = Math.round(predictions[0].probability * 100);
+        async function analisarSetor(id) {
+            if(!b1Ok) return alert("Inicie o registro no Bloco 01!");
+            const input = document.getElementById(`foto-${id}`);
+            if(input.files.length === 0) return alert("Selecione fotos!");
+            
+            document.getElementById(`prog-${id}`).classList.remove('hidden');
+            const bar = document.getElementById(`bar-${id}`);
 
-                    if (['person', 'human', 'face', 'dog', 'cat'].some(t => tags.includes(t))) {
-                        escreverNoTerminal(`<span class="text-yellow-500 font-bold">[BLOQUEIO] Ser vivo detectado.</span>`);
-                        return;
+            for(let f=0; f < input.files.length; f++) {
+                const file = input.files[f];
+                escreverNoTerminal(`[IA] Analisando evidência ${f+1} de ${input.files.length} no setor ${id.toUpperCase()}...`);
+                bar.style.width = "50%";
+
+                const reader = new FileReader();
+                const promise = new Promise(resolve => {
+                    reader.onload = (e) => {
+                        const img = document.getElementById('img-engine');
+                        img.src = e.target.result;
+                        img.onload = async () => {
+                            const predictions = await model.classify(img);
+                            const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
+                            const conf = Math.round(predictions[0].probability * 100);
+
+                            if (['person', 'human', 'face', 'dog', 'cat'].some(t => tags.includes(t))) {
+                                escreverNoTerminal(`[BLOQUEIO] Ser vivo detectado em ${file.name}`);
+                                resolve(); return;
+                            }
+
+                            let peso = conf > 45 ? 12 : conf > 20 ? 18 : 25; 
+                            let desc = conf > 45 ? "Baixa Gravidade (Reparar)" : conf > 20 ? "Média Gravidade (Substituir)" : "Crítica (Perda Total)";
+                            
+                            historico.push({ setor: id, parecer: desc, valor: peso, imgData: e.target.result, isSafe: false, arquivo: file.name });
+                            resolve();
+                        }
                     }
-
-                    let peso = conf > 45 ? 10 : conf > 20 ? 18 : 25; 
-                    let desc = conf > 45 ? "Baixa Gravidade (Reparar)" : conf > 20 ? "Média Gravidade (Substituir)" : "Crítica (Perda Total)";
-                    
-                    historico.push({ setor: lado, parecer: desc, valor: peso, imgData: e.target.result });
-                    escreverNoTerminal(`[OK] ${lado.toUpperCase()}: ${desc}`);
-                    document.getElementById(`box-${lado}`).classList.replace('border-slate-700', 'border-green-500');
-                }
+                });
+                reader.readAsDataURL(file);
+                await promise;
+                bar.style.width = "100%";
             }
-            reader.readAsDataURL(input.files[0]);
+            document.getElementById(`box-${id}`).classList.replace('border-slate-700', 'border-green-500');
+            document.getElementById(`count-${id}`).innerText = `${input.files.length} FOTO(S) PROCESSADA(S)`;
         }
 
         function consolidarResultados() {
-            if(historico.length === 0) return alert("Nenhuma avaliação técnica realizada!");
-            let total = historico.reduce((acc, item) => acc + item.valor, 0);
+            if(historico.length === 0) return alert("Nenhuma perícia realizada!");
+            let total = historico.reduce((acc, curr) => acc + curr.valor, 0);
             if(total > 100) total = 100;
 
             document.getElementById('score-total').innerText = total + "%";
             document.getElementById('bar-total').style.width = total + "%";
 
-            let ver = total >= 50 ? "PERDA TOTAL (PT)" : total >= 26 ? "CONSERTO AUTORIZADO" : "BAIXA GRAVIDADE";
+            let ver = total >= 50 ? "PERDA TOTAL (PT)" : total >= 26 ? "SINISTRO PROCEDENTE" : "BAIXA GRAVIDADE";
             let color = total >= 50 ? "text-red-500" : total >= 26 ? "text-yellow-500" : "text-green-500";
             
             const el = document.getElementById('status-final');
             el.innerText = ver; el.className = `text-2xl font-black italic uppercase tracking-tighter ${color}`;
             document.getElementById('btn-pdf-final').classList.remove('hidden');
+            escreverNoTerminal(`[PARECER] Cálculo Finalizado: Índice de ${total}%.`);
         }
 
         function gerarPDFFinal() {
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
             const placa = document.getElementById('user-placa').value.toUpperCase();
-            const cpf = document.getElementById('user-cpf').value;
-            const sinistro = document.getElementById('user-sinistro').value;
-
+            
             doc.setFontSize(22); doc.setTextColor(0, 102, 204); doc.text("REGULA SP - PARECER DE IA", 20, 20);
-            doc.setFontSize(10); doc.setTextColor(100); doc.text(`Base: Mongaguá/SP | GPS: -24.0928, -46.6214`, 20, 28);
+            doc.setFontSize(10); doc.setTextColor(100); doc.text(`Base Mongaguá | Sinistro: ${document.getElementById('user-sinistro').value} | Placa: ${placa}`, 20, 28);
             doc.line(20, 32, 190, 32);
 
-            doc.setFontSize(11); doc.setTextColor(0); doc.text("DADOS CADASTRAIS DO SINISTRO", 20, 42);
-            doc.setFontSize(10); doc.setTextColor(60);
-            doc.text(`PLACA: ${placa}`, 25, 52);
-            doc.text(`CPF: ${cpf}`, 25, 59);
-            doc.text(`Nº SINISTRO: ${sinistro}`, 25, 66);
-            doc.text(`DATA: ${new Date().toLocaleString()}`, 25, 73);
-
-            let y = 85;
+            let y = 45;
             historico.forEach((h, i) => {
                 if (y > 230) { doc.addPage(); y = 20; }
-                doc.setFontSize(11); doc.setTextColor(0, 102, 204); doc.text(`SETOR: ${h.setor.toUpperCase()}`, 20, y);
-                doc.setFontSize(9); doc.setTextColor(80); doc.text(`AVALIAÇÃO: ${h.parecer}`, 20, y + 6);
-                doc.addImage(h.imgData, 'JPEG', 20, y + 9, 50, 38);
-                y += 55;
+                doc.setFontSize(10); doc.setTextColor(0, 102, 204); doc.text(`SETOR: ${h.setor.toUpperCase()}`, 20, y);
+                doc.setFontSize(8); doc.setTextColor(80); doc.text(`PARECER: ${h.parecer} ${h.arquivo ? '| '+h.arquivo : ''}`, 20, y + 5);
+                
+                if(h.imgData) {
+                    doc.addImage(h.imgData, 'JPEG', 20, y + 8, 50, 38);
+                    y += 55;
+                } else {
+                    doc.text("DECLARAÇÃO: SETOR INTACTO / SEM AVARIAS.", 20, y + 10);
+                    y += 18;
+                }
             });
 
-            doc.setFontSize(14); doc.setTextColor(0, 102, 204); 
-            doc.text(`PARECER FINAL: ${document.getElementById('status-final').innerText}`, 20, y + 10);
+            doc.setFontSize(12); doc.setTextColor(0, 102, 204); doc.text(`VEREDITO FINAL: ${document.getElementById('status-final').innerText}`, 20, y + 10);
             doc.save(`Parecer_IA_RegulaSP_${placa}.pdf`);
         }
     </script>
