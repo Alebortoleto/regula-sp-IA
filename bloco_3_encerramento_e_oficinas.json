@@ -1,0 +1,33 @@
+{
+  "modulo": "Triagem e Encerramento Automático",
+  "ai_decision_engine": {
+    "workflow_selector": "AI_Damage_Severity_Score",
+    "parameters": {
+      "green_light": "Dano < R$ 5.000 && Sem Terceiros",
+      "yellow_light": "Dano > R$ 5.000 || Envolvimento de Terceiros",
+      "red_light": "Suspeita de Fraude || Perda Total"
+    }
+  },
+  "service_integration": {
+    "workshop_matching": {
+      "ai_task": "Recommendation_Engine",
+      "criteria": ["geolocalizacao", "disponibilidade_agenda", "especialidade_marca"],
+      "action": "enviar_orcamento_ia_para_oficina"
+    },
+    "logistics": {
+      "towing_service": "Automated_Dispatch_if_Severity_High",
+      "rental_car": "Check_Policy_Eligibility_and_Reserve"
+    }
+  },
+  "settlement_logic": {
+    "document_generation": {
+      "ai_task": "Generative_AI_Legal_Summary",
+      "files": ["Termo de Quitação", "Ordem de Serviço", "Relatório de Vistoria IA"],
+      "signature_type": "Digital_Auth"
+    },
+    "payment_trigger": {
+      "method": ["Pix_Instantaneo", "Voucher_Oficina"],
+      "fraud_check_final": "AI_Anomaly_Detection_Final_Score"
+    }
+  }
+}
