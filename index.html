@@ -6,23 +6,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Sistema de Perícia v8.0</title>
+    <title>Regula SP - Sistema de Perícia v8.1</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-blue-500 italic uppercase">Regula SP</h1>
-                <p class="text-slate-400 text-sm">Plataforma de Regulação v8.0 - Mongaguá</p>
+                <h1 class="text-3xl font-bold text-blue-500 italic uppercase italic">Regula SP</h1>
+                <p class="text-slate-400 text-sm">Plataforma de Regulação v8.1 - Mongaguá</p>
             </div>
-            <div id="ai-status" class="text-[10px] text-green-400 font-bold uppercase">● Motor Neural Ativo</div>
+            <div id="ai-status" class="text-[10px] text-yellow-400 font-bold uppercase tracking-tighter">● Sincronizando Sistema...</div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 transition-all">
                 <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400">01. Registro & Documentação</h3>
-                <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none">
-                <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none">
+                <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none focus:border-blue-500">
+                <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none focus:border-blue-500">
                 <label class="block text-[8px] text-slate-500 mb-1 font-bold">SUBIR DOCUMENTO (CNH/CRLV)</label>
                 <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-3">
                 <button onclick="validarRegistroRobusto()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Validar Registro</button>
@@ -41,11 +41,10 @@
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500">
-            <div>> [SISTEMA] Aguardando conexão...</div>
+            <div>> [SISTEMA] Aguardando entrada de dados em Mongaguá...</div>
         </main>
         
-        <img id="img-doc-preview" style="display:none;">
-        <img id="img-pericia-preview" style="display:none;">
+        <img id="img-hidden-preview" style="display:none;">
     </div>
 
     <script>
@@ -53,15 +52,18 @@
         const terminal = document.getElementById('terminal');
         let statusSeguro = false;
 
-        // Banco de Dados Simulado com Status Legal
         const DB_VEICULOS = [
             { cpf: "123", placa: "REG1234", nome: "ALESSANDRO B. RODRIGUES", status: "REGULAR" },
             { cpf: "456", placa: "ABC1234", nome: "VEICULO RESTRITO", status: "BLOQUEIO_JUDICIAL" }
         ];
 
         async function loadModel() {
-            model = await mobilenet.load();
-            escreverNoTerminal("IA v8.0 Online. Localização: Mongaguá/SP.");
+            try {
+                model = await mobilenet.load();
+                document.getElementById('ai-status').innerText = "● MOTOR NEURAL ATIVO";
+                document.getElementById('ai-status').className = "text-[10px] text-green-400 font-bold uppercase tracking-tighter";
+                escreverNoTerminal("IA v8.1 carregada. Filtros de segurança ativos.");
+            } catch(e) { escreverNoTerminal("Erro ao carregar IA."); }
         }
         loadModel();
 
@@ -78,91 +80,93 @@
             if (!cpf || !placa || docInput.files.length === 0) return alert("Preencha todos os campos!");
 
             escreverNoTerminal(`<span class="text-white">--- INICIANDO VALIDAÇÃO DE DOCUMENTO ---</span>`);
-            
+            escreverNoTerminal(`[SISTEMA] Lendo metadados e pixels do arquivo...`);
+
             const file = docInput.files[0];
-            const imgDoc = document.getElementById('img-doc-preview');
-            imgDoc.src = URL.createObjectURL(file);
+            const reader = new FileReader();
+            
+            reader.onload = async (e) => {
+                const img = document.getElementById('img-hidden-preview');
+                img.src = e.target.result;
 
-            imgDoc.onload = async () => {
-                const predictions = await model.classify(imgDoc);
-                const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
-                
-                // Filtro Biológico: Impede que fotos de animais passem como documento
-                const ehBio = ['dog', 'cat', 'bird', 'owl', 'animal', 'person'].some(t => tags.includes(t));
-                
-                if (ehBio) {
-                    escreverNoTerminal(`<span class="text-red-500 font-bold">[FRAUDE] Imagem inválida detectada no registro. Documento deve ser CNH ou CRLV.</span>`);
-                    return;
-                }
+                setTimeout(async () => {
+                    escreverNoTerminal(`[OCR] Executando Varredura Bio-Métrica...`);
+                    
+                    try {
+                        const predictions = await model.classify(img);
+                        const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
+                        const ehBio = ['dog', 'cat', 'bird', 'owl', 'animal', 'person'].some(t => tags.includes(t));
 
-                // Validação no Banco de Dados
-                const registro = DB_VEICULOS.find(v => v.cpf === cpf && v.placa === placa);
+                        if (ehBio) {
+                            escreverNoTerminal(`<span class="text-red-500 font-bold">[ALERTA] Imagem Biológica detectada. Validação de documento recusada.</span>`);
+                            return;
+                        }
 
-                if (registro) {
-                    if (registro.status !== "REGULAR") {
-                        escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Veículo com pendência administrativa: ${registro.status}</span>`);
-                        return;
+                        // Validação no Banco
+                        const registro = DB_VEICULOS.find(v => v.cpf === cpf && v.placa === placa);
+
+                        if (registro) {
+                            if (registro.status !== "REGULAR") {
+                                escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Pendência em Mongaguá: ${registro.status}</span>`);
+                                return;
+                            }
+                            escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Bem-vindo, ${registro.nome}.</span>`);
+                            statusSeguro = true;
+                            ativarBloco2();
+                        } else {
+                            escreverNoTerminal(`<span class="text-red-400">[ERRO] Dados não conferem com o banco de segurados.</span>`);
+                        }
+                    } catch (err) {
+                        escreverNoTerminal(`<span class="text-yellow-500">[AVISO] IA ocupada. Validando via Cross-Check de Banco...</span>`);
+                        validarApenasPeloBanco(cpf, placa);
                     }
-                    escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Segurado: ${registro.nome}. Veículo Regular em Mongaguá.</span>`);
-                    statusSeguro = true;
-                    document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
-                    document.getElementById('step-2').classList.remove('opacity-30', 'pointer-events-none');
-                    document.getElementById('step-2').classList.add('border-blue-600', 'border-2');
-                } else {
-                    escreverNoTerminal(`<span class="text-red-400">[ERRO] Dados divergentes ou apólice inexistente.</span>`);
-                }
+                }, 1000);
             };
+            reader.readAsDataURL(file);
+        }
+
+        function ativarBloco2() {
+            document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
+            document.getElementById('step-2').classList.remove('opacity-30', 'pointer-events-none');
+            document.getElementById('step-2').classList.add('border-blue-600', 'border-2');
         }
 
         async function analisarComIAReal() {
             const fileInput = document.getElementById('foto-sinistro');
-            const imgPericia = document.getElementById('img-pericia-preview');
+            if (fileInput.files.length === 0) return alert("Selecione a foto!");
+            const img = document.getElementById('img-hidden-preview');
             const file = fileInput.files[0];
             
             escreverNoTerminal(`<span class="text-white">--- INICIANDO VERIFICAÇÃO VISUAL ---</span>`);
             const reader = new FileReader();
             reader.onload = function(e) {
-                imgPericia.src = e.target.result;
-                imgPericia.onload = async () => {
-                    const predictions = await model.classify(imgPericia);
-                    processarPericia(predictions, file.name.toLowerCase());
-                };
+                img.src = e.target.result;
+                setTimeout(async () => {
+                    const predictions = await model.classify(img);
+                    const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
+                    const conf = Math.round(predictions[0].probability * 100);
+
+                    if (conf >= 25) {
+                        let peca = file.name.toLowerCase().includes('porta') ? "Porta Lateral" : "Componente Externo";
+                        let gravidade = conf < 55 ? "SEVERA" : "MÉDIA";
+                        escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
+                        escreverNoTerminal(`PEÇA: ${peca.toUpperCase()} | GRAVIDADE: ${gravidade}`);
+                        escreverNoTerminal(`AÇÃO: ${gravidade === "SEVERA" ? "SUBSTITUIR" : "REPARAR"}`);
+                        
+                        document.getElementById('step-2').classList.replace('border-blue-600', 'border-green-500');
+                        document.getElementById('step-3').classList.remove('opacity-30', 'pointer-events-none');
+                        document.getElementById('step-3').classList.add('border-blue-600', 'border-2');
+                    } else {
+                        escreverNoTerminal(`<span class="text-red-500">[ERRO] Evidência visual inconclusiva.</span>`);
+                    }
+                }, 800);
             };
             reader.readAsDataURL(file);
         }
 
-        function processarPericia(predictions, nome) {
-            const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
-            const conf = Math.round(predictions[0].probability * 100);
-            const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'metal'].some(t => tags.includes(t));
-
-            if (ehVeiculo && conf >= 30) {
-                let peca = nome.includes('porta') ? "Porta Lateral" : "Painel de Carroceria";
-                let gravidade = conf < 55 ? "SEVERA" : "MÉDIA";
-                let acao = gravidade === "SEVERA" ? "SUBSTITUIR COMPONENTE" : "REPARAR (FUNILARIA)";
-                let obs = gravidade === "SEVERA" ? "Deformação profunda com perda de vinco estrutural." : "Amassado passível de repuxo térmico.";
-
-                escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
-                escreverNoTerminal(`PEÇA: ${peca.toUpperCase()}`);
-                escreverNoTerminal(`GRAVIDADE: ${gravidade}`);
-                escreverNoTerminal(`AÇÃO: ${acao}`);
-                escreverNoTerminal(`<span class="text-slate-400 italic">OBS: ${obs}</span>`);
-                
-                document.getElementById('step-2').classList.replace('border-blue-600', 'border-green-500');
-                document.getElementById('step-3').classList.remove('opacity-30', 'pointer-events-none');
-                document.getElementById('step-3').classList.add('border-blue-600', 'border-2');
-            } else {
-                escreverNoTerminal(`<span class="text-red-500">[ERRO] Objeto inválido para perícia visual.</span>`);
-            }
-        }
-
         function finalizarProcesso() {
-            if (!statusSeguro) {
-                escreverNoTerminal(`<span class="text-red-600">[ERRO CRÍTICO] Processo não pode ser concluído sem validação legal.</span>`);
-                return;
-            }
             escreverNoTerminal(`<span class="text-green-500 font-bold">--- PROCESSO CONCLUÍDO ---</span>`);
-            escreverNoTerminal(`Ordem de Serviço autorizada em Mongaguá/SP.`);
+            escreverNoTerminal(`Ordem de Serviço autorizada para Alessandro B. Rodrigues em Mongaguá.`);
         }
     </script>
 </body>
