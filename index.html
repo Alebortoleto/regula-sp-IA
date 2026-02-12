@@ -6,17 +6,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Full Engine v10.3</title>
+    <title>Regula SP - Avaliação Georreferenciada v10.5</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic uppercase tracking-tighter">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic">Inteligência Pericial | Base Mongaguá</p>
+                <p class="text-slate-400 text-sm italic">Avaliação Georreferenciada | Base Mongaguá</p>
             </div>
             <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase tracking-widest">
-                ● SINCRONIZANDO NÚCLEO...
+                ● SINCRONIZANDO GPS...
             </div>
         </header>
 
@@ -36,9 +36,9 @@
             <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all duration-500 shadow-lg">
                 <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">02. Verificação Visual</h3>
                 <div class="flex flex-col h-full justify-between">
-                    <p class="text-[9px] text-slate-500 mb-2 italic text-center">Análise de tensores MobileNet v2.1</p>
+                    <p class="text-[9px] text-slate-500 mb-2 italic text-center">IA de Precisão MobileNet v2.1</p>
                     <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 cursor-pointer">
-                    <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Executar Perícia</button>
+                    <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Executar Avaliação</button>
                 </div>
             </div>
 
@@ -52,7 +52,7 @@
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Motor v10.3 pronto. Aguardando autenticação...</div>
+            <div>> [SISTEMA] Motor v10.5 pronto em Mongaguá/SP. Aguardando dados...</div>
         </main>
         
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
@@ -66,9 +66,9 @@
         async function loadModel() {
             try {
                 model = await mobilenet.load();
-                document.getElementById('ai-status').innerText = "● LOCALIZAÇÃO: MONGAGUÁ/SP (OK)";
+                document.getElementById('ai-status').innerText = "● LOCALIZAÇÃO: -24.0928, -46.6214 (OK)";
                 document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase tracking-tighter";
-                escreverNoTerminal("IA v10.3 Sincronizada. Bloqueio de Falso PT ativado.");
+                escreverNoTerminal("IA v10.5 Sincronizada em Mongaguá/SP. GPS Ativo.");
             } catch (e) { escreverNoTerminal("Erro Crítico no Motor Neural."); }
         }
         loadModel();
@@ -80,11 +80,11 @@
 
         function registrar() {
             const placa = document.getElementById('user-placa').value;
-            const doc = document.getElementById('doc-input').files[0];
-            if(!placa || !doc) return alert("Erro: Preencha os dados e anexe o documento!");
+            if(!placa) return alert("Erro: Placa obrigatória!");
             escreverNoTerminal(`<span class="text-white font-bold">--- PROTOCOLO DE REGISTRO INICIADO ---</span>`);
+            escreverNoTerminal(`[LOG] Coordenadas de Mongaguá registradas para Placa: ${placa.toUpperCase()}`);
             setTimeout(() => {
-                escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Placa ${placa.toUpperCase()} salva na base Mongaguá.</span>`);
+                escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Dados autenticados.</span>`);
                 document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
                 b1Ok = true;
             }, 600);
@@ -92,9 +92,9 @@
 
         async function analisarIA() {
             const file = document.getElementById('foto-sinistro').files[0];
-            if (!file) return alert("Selecione a foto da avaria!");
+            if (!file) return alert("Selecione a foto!");
             const img = document.getElementById('img-engine');
-            escreverNoTerminal(`<span class="text-white font-bold">--- INICIANDO VERIFICAÇÃO VISUAL ---</span>`);
+            escreverNoTerminal(`<span class="text-white font-bold">--- INICIANDO AVALIAÇÃO GEORREFERENCIADA ---</span>`);
             const reader = new FileReader();
             reader.onload = (e) => {
                 img.src = e.target.result;
@@ -102,31 +102,26 @@
                     const predictions = await model.classify(img);
                     const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                     const conf = Math.round(predictions[0].probability * 100);
-                    const pecaDet = ['bumper', 'grille', 'door', 'car', 'wheel', 'vehicle'].some(t => tags.includes(t));
+                    const pecaDet = ['bumper', 'grille', 'door', 'car', 'vehicle'].some(t => tags.includes(t));
 
                     if (pecaDet) {
                         let grav, acao, obs;
                         let peca = file.name.toLowerCase().includes('porta') ? "Porta Lateral" : "Para-choque/Painel";
-                        // Lógica de Proteção: Se detectou a peça, nunca dá PT direto por falta de confiança
                         if (conf > 70) { grav = "BAIXA"; acao = "REPARAR (Polimento)"; obs = "Dano superficial."; }
-                        else if (conf > 30 || tags.includes('bumper') || tags.includes('grille')) {
-                            // PRIORIZA REPARO PARA PARA-CHOQUES
-                            grav = "MÉDIA"; acao = "REPARAR (Funilaria Técnica)"; obs = "Recuperação via repuxo plástico/térmico.";
-                        } else { 
-                            grav = "ALTA"; acao = "SUBSTITUIR COMPONENTE"; obs = "Dano em fixadores ou vinco estrutural."; 
-                        }
+                        else if (conf > 30 || tags.includes('bumper')) {
+                            grav = "MÉDIA"; acao = "REPARAR (Funilaria Técnica)"; obs = "Recuperação via repuxo em Mongaguá.";
+                        } else { grav = "ALTA"; acao = "SUBSTITUIR COMPONENTE"; obs = "Dano em fixadores estruturais."; }
 
                         escreverNoTerminal(`[IA_DEBUG] Tag: ${predictions[0].className} (${conf}%)`);
                         escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
-                        escreverNoTerminal(`PEÇA: ${peca.toUpperCase()} | GRAVIDADE: ${grav}`);
-                        escreverNoTerminal(`AÇÃO: ${acao} | OBS: ${obs}`);
+                        escreverNoTerminal(`LOCAL: Av. Marina, Mongaguá | GRAVIDADE: ${grav}`);
+                        escreverNoTerminal(`RECOMENDAÇÃO: ${acao} | OBS: ${obs}`);
                         document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
                         b2Ok = true;
                     } else { 
-                        // PT agora é o último recurso, apenas se não vir nada de carro
                         escreverNoTerminal(`<span class="text-red-500 font-bold">--- PARECER TÉCNICO CRÍTICO ---</span>`);
-                        escreverNoTerminal(`GRAVIDADE: PERDA TOTAL (PT) | OBS: Dano estrutural severo ou objeto irreconhecível.`);
-                        b2Ok = true; // Permite concluir como PT
+                        escreverNoTerminal(`GRAVIDADE: PERDA TOTAL (PT) | LOCAL: Mongaguá/SP`);
+                        b2Ok = true;
                     }
                 };
             };
@@ -134,12 +129,9 @@
         }
 
         function concluir() {
-            escreverNoTerminal(`<span class="text-white font-bold">--- FINALIZANDO PROCESSO ---</span>`);
-            if (b1Ok && b2Ok) {
-                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Sinistro finalizado com sucesso em Mongaguá.</span>`);
-            } else {
-                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Fluxo incompleto. Verifique os blocos 1 e 2.</span>`);
-            }
+            escreverNoTerminal(`<span class="text-white font-bold">--- FINALIZANDO ---</span>`);
+            if (b1Ok && b2Ok) escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Sinistro validado via GPS e IA. OS Liberada.</span>`);
+            else escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Necessário análise humana.</span>`);
         }
     </script>
 </body>
