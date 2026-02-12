@@ -6,58 +6,54 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Full Engine v8.3</title>
+    <title>Regula SP - Full Engine v8.4</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic uppercase">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic">Base Mongaguá | v8.3 Motor de Ferro</p>
+                <p class="text-slate-400 text-sm italic">Base Mongaguá | v8.4 Fluxo Híbrido</p>
             </div>
-            <div id="ai-status" class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">● CARREGANDO NÚCLEO...</div>
+            <div id="ai-status" class="text-[10px] text-green-400 font-bold uppercase tracking-widest">● Motor Ativo</div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 transition-all">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline">01. Registro de Sinistro</h3>
-                <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none focus:border-blue-500">
-                <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none focus:border-blue-500">
+            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline">01. Registro & Doc</h3>
+                <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none">
                 <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-3">
-                <button onclick="validarRegistro()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase shadow-lg">Autenticar Documento</button>
+                <button onclick="validarDocumentoLocal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Validar Registro</button>
             </div>
 
-            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border border-slate-700 opacity-30 pointer-events-none transition-all">
+            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-500">
                 <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline">02. Verificação Visual</h3>
                 <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-3">
-                <button onclick="analisarComIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase shadow-lg">Avaliar Estrutura</button>
+                <button onclick="analisarDanoIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Analisar Estrutura</button>
             </div>
 
-            <div id="step-3" class="bg-slate-800 p-5 rounded-xl border border-slate-700 opacity-30 pointer-events-none transition-all">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline">03. Conclusão</h3>
-                <button onclick="finalizarProcesso()" class="w-full bg-green-600 py-2 rounded text-[10px] font-black hover:bg-green-500 uppercase shadow-lg">Gerar O.S. Final</button>
+            <div id="step-3" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline">03. Finalização</h3>
+                <button onclick="concluirComParecer()" class="w-full bg-green-600 py-2 rounded text-[10px] font-black hover:bg-green-500 uppercase">Gerar Desfecho</button>
             </div>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Aguardando conexão Mongaguá/SP...</div>
+            <div>> [SISTEMA] Pronto para operação em Mongaguá/SP.</div>
         </main>
         
-        <img id="img-engine" style="display:none;">
+        <img id="img-proc" style="display:none;">
     </div>
 
     <script>
         let model;
         const terminal = document.getElementById('terminal');
-        const DB = [ { cpf: "123", placa: "REG1234", nome: "ALESSANDRO B. RODRIGUES" } ];
+        let flagDoc = false;
+        let flagPericia = false;
 
         async function loadModel() {
-            try {
-                model = await mobilenet.load();
-                document.getElementById('ai-status').innerText = "● MOTOR NEURAL PRONTO";
-                document.getElementById('ai-status').className = "text-[10px] text-green-400 font-bold uppercase";
-                escreverNoTerminal("IA v8.3 Sincronizada. Localização: Mongaguá/SP.");
-            } catch(e) { escreverNoTerminal("Falha crítica no carregamento."); }
+            model = await mobilenet.load();
+            escreverNoTerminal("IA v8.4 carregada. Filtros e lógica de parecer ativos.");
         }
         loadModel();
 
@@ -66,82 +62,83 @@
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        async function validarRegistro() {
-            const cpf = document.getElementById('user-cpf').value;
-            const placa = document.getElementById('user-placa').value.toUpperCase();
+        // BLOCO 1: Validação de Documento com IA
+        async function validarDocumentoLocal() {
+            const placa = document.getElementById('user-placa').value;
             const file = document.getElementById('doc-input').files[0];
+            if (!placa || !file) return alert("Preencha a placa e anexe o documento!");
 
-            if (!cpf || !placa || !file) return alert("Erro: Preencha todos os campos e anexe o documento.");
-
-            escreverNoTerminal(`<span class="text-white">--- INICIANDO VALIDAÇÃO DE REGISTRO ---</span>`);
-            escreverNoTerminal(`[SISTEMA] Processando metadados de ${file.name}...`);
-
-            const img = document.getElementById('img-engine');
+            escreverNoTerminal(`<span class="text-white">--- VALIDANDO REGISTRO ---</span>`);
+            const img = document.getElementById('img-proc');
             img.src = URL.createObjectURL(file);
 
             img.onload = async () => {
-                escreverNoTerminal(`<span class="text-yellow-400">[IA_OCR] Varredura Bio-Métrica em execução...</span>`);
-                
-                // Força a análise real da IA
                 const predictions = await model.classify(img);
                 const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                 
-                // TRAVA ANTI-ANIMAL
-                if (['dog', 'cat', 'bird', 'owl', 'animal', 'kite'].some(t => tags.includes(t))) {
-                    escreverNoTerminal(`<span class="text-red-500 font-bold">[ALERTA] Imagem biológica ou irrelevante detectada. Registro recusado.</span>`);
-                    return;
-                }
+                // Trava se for animal ou objeto aleatório
+                const ehInvalido = ['dog', 'cat', 'bird', 'owl', 'animal', 'person', 'kite'].some(t => tags.includes(t));
 
-                // VALIDAÇÃO NO BANCO
-                const user = DB.find(u => u.cpf === cpf && u.placa === placa);
-                if (user) {
-                    escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Bem-vindo, ${user.nome}. Veículo validado.</span>`);
-                    document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
-                    document.getElementById('step-2').classList.remove('opacity-30', 'pointer-events-none');
-                    document.getElementById('step-2').classList.add('border-blue-600', 'border-2');
+                if (ehInvalido) {
+                    escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Documento inválido ou suspeita de fraude.</span>`);
+                    flagDoc = false;
                 } else {
-                    escreverNoTerminal(`<span class="text-red-400">[ERRO] Dados não coincidem com o banco de apólices Mongaguá.</span>`);
+                    escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Placa ${placa.toUpperCase()} vinculada ao documento anexado.</span>`);
+                    document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
+                    flagDoc = true;
                 }
             };
         }
 
-        async function analisarComIA() {
+        // BLOCO 2: Perícia Visual (Aprovada anteriormente)
+        async function analisarDanoIA() {
             const file = document.getElementById('foto-sinistro').files[0];
-            if (!file) return alert("Selecione a foto da batida!");
+            if (!file) return alert("Selecione a foto do dano!");
 
             escreverNoTerminal(`<span class="text-white">--- INICIANDO VERIFICAÇÃO VISUAL ---</span>`);
-            const img = document.getElementById('img-engine');
+            const img = document.getElementById('img-proc');
             img.src = URL.createObjectURL(file);
 
             img.onload = async () => {
-                escreverNoTerminal(`<span class="text-yellow-500">[IA_SCAN] Avaliando tensores de deformação...</span>`);
                 const predictions = await model.classify(img);
                 const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                 const conf = Math.round(predictions[0].probability * 100);
 
-                // Lógica de Identificação de Peça e Dano
                 if (['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'grille', 'metal'].some(t => tags.includes(t)) && conf >= 25) {
                     let gravidade = conf < 55 ? "SEVERA" : "MÉDIA";
-                    let peca = file.name.toLowerCase().includes('porta') ? "PORTA LATERAL" : "COMPONENTE EXTERNO";
+                    let peca = file.name.toLowerCase().includes('porta') ? "PORTA LATERAL" : "PAINEL EXTERNO";
                     
                     escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
-                    escreverNoTerminal(`PEÇA IDENTIFICADA: ${peca}`);
-                    escreverNoTerminal(`NÍVEL DE DANO: ${gravidade}`);
-                    escreverNoTerminal(`AÇÃO RECOMENDADA: ${gravidade === "SEVERA" ? "SUBSTITUIR" : "REPARAR"}`);
-                    escreverNoTerminal(`<span class="text-slate-400 italic">DETALHE: ${gravidade === "SEVERA" ? "Perda de integridade da linha de vinco." : "Deformação passível de repuxo térmico."}</span>`);
+                    escreverNoTerminal(`COMPONENTE: ${peca} | GRAVIDADE: ${gravidade}`);
+                    escreverNoTerminal(`AÇÃO: ${gravidade === "SEVERA" ? "SUBSTITUIR" : "REPARAR"}`);
+                    escreverNoTerminal(`<span class="text-slate-400 italic">OBS: ${gravidade === "SEVERA" ? "Perda de integridade da linha de vinco." : "Deformação passível de repuxo."}</span>`);
                     
-                    document.getElementById('step-2').classList.replace('border-blue-600', 'border-green-500');
-                    document.getElementById('step-3').classList.remove('opacity-30', 'pointer-events-none');
-                    document.getElementById('step-3').classList.add('border-blue-600', 'border-2');
+                    document.getElementById('step-2').classList.replace('border-slate-500', 'border-green-500');
+                    flagPericia = true;
                 } else {
-                    escreverNoTerminal(`<span class="text-red-500">[ERRO] Evidência visual inválida ou irrelevante.</span>`);
+                    escreverNoTerminal(`<span class="text-red-500">[ERRO] Evidência visual inconclusiva.</span>`);
+                    flagPericia = false;
                 }
             };
         }
 
-        function finalizarProcesso() {
-            escreverNoTerminal(`<span class="text-green-500 font-bold">--- PROCESSO CONCLUÍDO ---</span>`);
-            escreverNoTerminal(`[SISTEMA] Ordem de Serviço autorizada em Mongaguá/SP.`);
+        // BLOCO 3: Conclusão com Parecer de Exceção
+        function concluirComParecer() {
+            escreverNoTerminal(`<span class="text-white">--- FINALIZANDO PROCESSO ---</span>`);
+            
+            if (flagDoc && flagPericia) {
+                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Fluxo 100% automatizado. Ordem de serviço liberada.</span>`);
+            } else {
+                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[ALERTA] Necessário Parecer Técnico Humano.</span>`);
+                escreverNoTerminal(`<span class="text-slate-400">Motivo: Pelo menos um dos itens de segurança falhou na validação automática.</span>`);
+                
+                let pendencias = [];
+                if (!flagDoc) pendencias.push("Verificar veracidade do Documento/Placa");
+                if (!flagPericia) pendencias.push("Avaliar dano físico via vistoriador presencial");
+
+                escreverNoTerminal(`<span class="text-red-400">PENDÊNCIAS PARA O REGULADOR:</span>`);
+                pendencias.forEach(p => escreverNoTerminal(`- ${p}`));
+            }
         }
     </script>
 </body>
