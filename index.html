@@ -13,58 +13,46 @@
                 <h1 class="text-3xl font-bold text-blue-500">Regula SP</h1>
                 <p class="text-slate-400 text-sm">Painel de Monitoramento de IA v2.0</p>
             </div>
-            <div class="text-right text-xs bg-slate-800 p-2 rounded border border-blue-500/30">
+            <div id="status-chip" class="text-right text-xs bg-slate-800 p-2 rounded border border-blue-500/30">
                 <span class="block text-green-400">● Sistema Online</span>
-                <span class="text-slate-500">Lat: -23.550 | Long: -46.633</span>
+                <span id="geo" class="text-slate-500">Localização: Mongaguá, SP</span>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-all">
+            <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition-all text-left">
                 <h3 class="font-bold text-blue-400 mb-2">1. Registro</h3>
-                <p class="text-xs text-slate-400 mb-4">OCR de documentos e análise de sentimento via voz.</p>
-                <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div class="bg-blue-500 h-full w-[100%]"></div>
-                </div>
-            </div>
+                <p class="text-[10px] text-slate-400">Verificar Lógica de Entrada</p>
+            </button>
 
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-all">
+            <button onclick="mostrarLog('vistoria')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition-all text-left">
                 <h3 class="font-bold text-blue-400 mb-2">2. Vistoria IA</h3>
-                <p class="text-xs text-slate-400 mb-4">Visão computacional detectando danos em tempo real.</p>
-                <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div class="bg-blue-500 h-full w-[65%]"></div>
-                </div>
-            </div>
+                <p class="text-[10px] text-slate-400">Simular Visão Computacional</p>
+            </button>
 
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-all">
+            <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition-all text-left">
                 <h3 class="font-bold text-blue-400 mb-2">3. Conclusão</h3>
-                <p class="text-xs text-slate-400 mb-4">Match de oficinas e pagamento via Pix/Voucher.</p>
-                <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div class="bg-slate-600 h-full w-[10%]"></div>
-                </div>
-            </div>
+                <p class="text-[10px] text-slate-400">Liquidação de Sinistro</p>
+            </button>
         </div>
 
-        <main class="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
-            <div class="flex items-center space-x-4 mb-6">
-                <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500">
-                    <span class="text-blue-400 text-xl font-bold italic">AI</span>
-                </div>
-                <div>
-                    <h2 class="font-semibold text-lg">Assistente Virtual Regula SP</h2>
-                    <p class="text-sm text-slate-400 italic font-light">"Analisando danos detectados nas fotos..."</p>
-                </div>
-            </div>
-            
-            <div class="space-y-4">
-                <div class="bg-slate-900/50 p-4 rounded-lg border-l-4 border-blue-500">
-                    <p class="text-sm">Log: Peça [Para-choque Dianteiro] identificada com 94% de probabilidade de troca.</p>
-                </div>
-                <div class="bg-slate-900/50 p-4 rounded-lg border-l-4 border-green-500">
-                    <p class="text-sm text-green-400">Status: Fast-Track elegível para Oficina Credenciada #42.</p>
-                </div>
-            </div>
+        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-64 overflow-y-auto font-mono text-sm">
+            <div class="text-blue-500">> Aguardando comando... Clique em um dos blocos acima para simular a IA.</div>
         </main>
     </div>
+
+    <script>
+        function mostrarLog(tipo) {
+            const terminal = document.getElementById('terminal');
+            const logs = {
+                'registro': '<span class="text-yellow-500">[SISTEMA]</span> Lendo arquivo logic/bloco_1...<br><span class="text-green-500">[IA]</span> Biometria facial confirmada. OCR detectou Placa: ABC-1234. Sentimento do motorista: Calmo.',
+                'vistoria': '<span class="text-yellow-500">[VISÃO]</span> Analisando fotos enviadas...<br><span class="text-blue-400">[IA]</span> Amassado detectado em Para-choque Dianteiro (Probabilidade 98%). Estimativa: R$ 1.200,00.',
+                'conclusao': '<span class="text-yellow-500">[DECISÃO]</span> Score de risco: Baixo.<br><span class="text-green-500">[IA]</span> Sinistro aprovado via Fast-Track. Enviando voucher para Oficina Credenciada em Mongaguá.'
+            };
+            
+            terminal.innerHTML += `<div class="mt-4 border-t border-slate-800 pt-2">${logs[tipo]}</div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+    </script>
 </body>
 </html>
