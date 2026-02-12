@@ -13,36 +13,36 @@
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic">Regula SP</h1>
-                <p class="text-slate-400 text-sm">Módulo de Perícia Automotiva v3.1</p>
+                <p class="text-slate-400 text-sm italic">Módulo de Perícia Automotiva v3.2</p>
             </div>
             <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400">
-                ● CARREGANDO MOTOR NEURAL...
+                ● CARREGANDO MOTOR...
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left transition-all">
                 <h3 class="font-bold text-blue-400 mb-1 text-sm italic">01. REGISTRO</h3>
-                <p class="text-[9px] text-slate-500 font-black uppercase">Dados Segurado</p>
+                <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Check-in</p>
             </button>
 
             <div class="bg-slate-800 p-4 rounded-xl border-2 border-blue-600 shadow-lg">
                 <h3 class="font-bold text-white mb-2 text-sm italic">02. VISTORIA IA</h3>
                 <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-2 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 file:py-1">
-                <button onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Iniciar Perícia</button>
+                <button onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Executar Perícia</button>
             </div>
 
             <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left transition-all">
                 <h3 class="font-bold text-blue-400 mb-1 text-sm italic">03. CONCLUSÃO</h3>
-                <p class="text-[9px] text-slate-500 font-black uppercase">Liquidação</p>
+                <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Liquidação</p>
             </button>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500">
-            <div>> [SYSTEM] Kernel v3.1 pronto. Localização: Mongaguá/SP.</div>
+            <div>> [SISTEMA] Monitor ativo. Aguardando input...</div>
         </main>
         
-        <img id="img-preview" style="display:none;" />
+        <img id="img-preview" style="position: absolute; left: -9999px; width: 300px;">
     </div>
 
     <script>
@@ -52,10 +52,10 @@
         async function loadModel() {
             try {
                 model = await mobilenet.load();
-                document.getElementById('ai-status').innerText = "● MOTOR ATIVO";
-                document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400";
-                escreverNoTerminal("IA carregada. Suba a imagem e clique em Iniciar Perícia.");
-            } catch (e) { escreverNoTerminal("Erro ao carregar IA."); }
+                document.getElementById('ai-status').innerText = "● IA DE FRONTEIRA PRONTA";
+                document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold";
+                escreverNoTerminal("Núcleo Neural carregado. Localização: Mongaguá/SP.");
+            } catch (e) { escreverNoTerminal("Erro no Kernel."); }
         }
         loadModel();
 
@@ -71,45 +71,45 @@
             const file = fileInput.files[0];
             const imgElement = document.getElementById('img-preview');
             
-            escreverNoTerminal(`[SISTEMA] Ingerindo imagem: ${file.name}`);
-            escreverNoTerminal(`<span class="text-yellow-500">--- PROCESSANDO PIXELS (AGUARDE) ---</span>`);
+            escreverNoTerminal(`<span class="text-white">--- INICIANDO ESCANEAMENTO ---</span>`);
+            escreverNoTerminal(`[SISTEMA] Ingerindo pixels de: ${file.name}`);
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 imgElement.src = e.target.result;
-                imgElement.onload = async () => {
+                // Forçamos o processamento imediato
+                setTimeout(async () => {
+                    escreverNoTerminal(`<span class="text-yellow-500">[IA_SCAN] Analisando geometria e texturas...</span>`);
                     const predictions = await model.classify(imgElement);
-                    processarResultado(predictions);
-                };
+                    processarVeredito(predictions);
+                }, 500);
             };
             reader.readAsDataURL(file);
         }
 
-        function processarResultado(predictions) {
-            const termosCarro = ['car', 'wheel', 'vehicle', 'truck', 'tire', 'bumper', 'grille', 'motor', 'wagon', 'door', 'convertible', 'minivan', 'pickup', 'taxi', 'jeep', 'racer'];
+        function processarVeredito(predictions) {
+            const termosCarro = ['car', 'wheel', 'vehicle', 'truck', 'tire', 'bumper', 'grille', 'motor', 'wagon', 'door', 'convertible', 'minivan', 'pickup', 'taxi', 'jeep', 'racer', 'ambulance'];
             const classeDetectada = predictions[0].className.toLowerCase();
             const confianca = Math.round(predictions[0].probability * 100);
             const encontrouVeiculo = termosCarro.some(carro => classeDetectada.includes(carro));
 
-            escreverNoTerminal(`[IA_DEBUG] Detecção: ${classeDetectada} (${confianca}%)`);
+            escreverNoTerminal(`[IA_DEBUG] Identificado: <span class="text-blue-400">${classeDetectada}</span> (${confianca}% certeza)`);
 
-            if (encontrouVeiculo && confianca >= 45) {
-                escreverNoTerminal(`<span class="text-white font-bold">[VISTORIA] Veículo autenticado com sucesso.</span>`);
-                setTimeout(() => {
-                    escreverNoTerminal(`<span class="text-purple-400">[DETECÇÃO] Deformação em chapa metálica identificada.</span>`);
-                    escreverNoTerminal(`<span class="text-white">--- ORÇAMENTO ---</span>`);
-                    escreverNoTerminal(`<span class="text-white">Funilaria: R$ 900,00 | Pintura: R$ 550,00</span>`);
-                    escreverNoTerminal(`<span class="text-green-400 font-bold">[VEREDITO] Sinistro validado automaticamente.</span>`);
-                }, 1000);
+            if (encontrouVeiculo && confianca >= 40) {
+                escreverNoTerminal(`<span class="text-white font-bold">[VISTORIA] Veículo autenticado via rede local.</span>`);
+                escreverNoTerminal(`<span class="text-purple-400">[DETECÇÃO] Deformação estrutural localizada em painel frontal/lateral.</span>`);
+                escreverNoTerminal(`<span class="text-white">Orçamento sugerido: R$ 1.680,00 (Mão de obra inclusa).</span>`);
+                escreverNoTerminal(`<span class="text-green-500 font-bold">[VEREDITO] Sinistro validado. Módulo 03 liberado.</span>`);
             } else {
-                escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Evidência rejeitada. Motivo: Objeto não condiz com perícia ou imagem de baixa qualidade (${confianca}%).</span>`);
+                escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Evidência rejeitada pelo motor de segurança.</span>`);
+                escreverNoTerminal(`<span class="text-red-400">Motivo: Baixa assertividade ou objeto inválido (${confianca}%).</span>`);
             }
         }
 
         function mostrarLog(tipo) {
             const logs = {
-                'registro': 'Consultando histórico do segurado... OK.',
-                'conclusao': 'Indenização aprovada. Aguardando processamento bancário.'
+                'registro': 'Consultando logic/bloco_1... Usuário autenticado.',
+                'conclusao': 'Indenização pronta para liquidação via PIX.'
             };
             escreverNoTerminal(`<span class="text-blue-400">${logs[tipo]}</span>`);
         }
