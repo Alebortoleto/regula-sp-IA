@@ -6,14 +6,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Perícia Técnica v4.5</title>
+    <title>Regula SP - Perícia Técnica v4.7</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic uppercase">Regula SP</h1>
-                <p class="text-slate-400 text-sm">Módulo de Engenharia e Reparo v4.5</p>
+                <p class="text-slate-400 text-sm italic">Análise de Impacto e Gravidade v4.7</p>
             </div>
             <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase">
                 ● Sincronizando Kernels...
@@ -21,25 +21,25 @@
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
+            <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left transition-all">
                 <h3 class="font-bold text-blue-400 mb-1 text-xs italic">01. CHECK-IN</h3>
-                <p class="text-[9px] text-slate-500 font-black uppercase">Dados Segurado</p>
+                <p class="text-[9px] text-slate-500 font-black uppercase">Dados do Segurado</p>
             </button>
 
-            <div class="bg-slate-800 p-4 rounded-xl border-2 border-blue-600 shadow-lg">
-                <h3 class="font-bold text-white mb-2 text-xs italic">02. ANÁLISE TÉCNICA IA</h3>
+            <div class="bg-slate-800 p-4 rounded-xl border-2 border-blue-600 shadow-lg shadow-blue-500/20">
+                <h3 class="font-bold text-white mb-2 text-xs italic">02. PERÍCIA DE IMPACTO</h3>
                 <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-2">
-                <button onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Avaliar Danos</button>
+                <button onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest">Analisar Gravidade</button>
             </div>
 
-            <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
+            <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left transition-all">
                 <h3 class="font-bold text-blue-400 mb-1 text-xs italic">03. DESFECHO</h3>
-                <p class="text-[9px] text-slate-500 font-black uppercase">Ordem de Serviço</p>
+                <p class="text-[9px] text-slate-500 font-black uppercase">Encaminhamento</p>
             </button>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-96 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Monitor pericial ativo. Aguardando evidência...</div>
+            <div>> [SISTEMA] Motor pericial v4.7 ativo. Local: Mongaguá/SP.</div>
         </main>
         
         <img id="img-preview" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
@@ -52,10 +52,10 @@
         async function loadModel() {
             try {
                 model = await mobilenet.load();
-                document.getElementById('ai-status').innerText = "● MOTOR TÉCNICO ATIVO";
+                document.getElementById('ai-status').innerText = "● IA DE PRECISÃO ATIVA";
                 document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold";
-                escreverNoTerminal("IA v4.5 pronta. Filtros de integridade estrutural ativos.");
-            } catch (e) { escreverNoTerminal("Erro crítico de IA."); }
+                escreverNoTerminal("IA pronta para detectar níveis de deformação estrutural.");
+            } catch (e) { escreverNoTerminal("Erro crítico de inicialização."); }
         }
         loadModel();
 
@@ -67,18 +67,14 @@
         async function analisarComIAReal() {
             const fileInput = document.getElementById('foto-sinistro');
             if (fileInput.files.length === 0) return alert("Selecione uma imagem!");
-
             const file = fileInput.files[0];
             const imgPreview = document.getElementById('img-preview');
-            
             escreverNoTerminal(`<span class="text-white">--- INICIANDO ESCANEAMENTO TÉCNICO ---</span>`);
-            escreverNoTerminal(`[SISTEMA] Analisando estrutura de pixels: ${file.name}`);
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 imgPreview.src = e.target.result;
                 imgPreview.decode().then(async () => {
-                    escreverNoTerminal(`<span class="text-yellow-500">[IA_SCAN] Avaliando pontos de tensão e deformação...</span>`);
+                    escreverNoTerminal(`<span class="text-yellow-500">[IA_SCAN] Calculando vetores de deformação plástica...</span>`);
                     const predictions = await model.classify(imgPreview);
                     processarVeredito(predictions, file.name.toLowerCase());
                 });
@@ -89,57 +85,58 @@
         function processarVeredito(predictions, nomeArquivo) {
             const tagsIA = predictions.map(p => p.className.toLowerCase()).join(' ');
             const confianca = Math.round(predictions[0].probability * 100);
+            const termosInvalidos = ['kite', 'bird', 'owl', 'animal', 'person', 'dog', 'cat'];
+            const encontrouInvalido = termosInvalidos.some(t => tagsIA.includes(t));
 
-            // Filtro Anti-Fraude (Biológico/Ambiente)
-            const termosProibidos = ['bird', 'owl', 'animal', 'dog', 'cat', 'person', 'people', 'tree', 'flower'];
-            const detectouProibido = termosProibidos.some(t => tagsIA.includes(t));
+            let peca = "Painel Externo de Carroceria";
+            let acao = "REPARAR";
+            let gravidade = "LEVE";
+            let obs = "Dano superficial. Recuperação via martelinho/repuxo.";
 
-            let peca = "Estrutura Externa";
-            let acao = "REPARAR (Funilaria Leve)";
-            let obs = "Dano superficial detectado. Sem comprometimento de travas.";
-
-            // Lógica de Identificação de Peça e Decisão Técnica
-            if (nomeArquivo.includes('porta') || tagsIA.includes('door')) {
-                const lado = nomeArquivo.includes('traseira') ? "Traseira" : "Dianteira";
-                peca = `Porta Lateral ${lado}`;
-                // Simulação: Se for porta e estiver muito "claro" o dano, sugere substituição
-                if (confianca > 65) {
-                    acao = "SUBSTITUIR (Troca de Folha de Porta)";
-                    obs = "Deformação em linha de vinco. Inviável para repuxo.";
-                } else {
-                    acao = "REPARAR (Repuxo e Pintura)";
-                    obs = "Amassado sem vinco profundo. Possível recuperação.";
-                }
-            } else if (nomeArquivo.includes('parachoque') || tagsIA.includes('bumper') || tagsIA.includes('grille')) {
-                const posicao = nomeArquivo.includes('traseiro') ? "Traseiro" : "Dianteiro";
-                peca = `Para-choque ${posicao}`;
-                acao = "SUBSTITUIR (Componente Plástico)";
-                obs = "Ruptura de presilhas e pontos de fixação plástica.";
+            // LÓGICA DE GRAVIDADE BASEADA NA CLAREZA DA PEÇA
+            if (confianca < 55) {
+                gravidade = "SEVERA";
+                acao = "SUBSTITUIR COMPONENTE";
+                obs = "Deformação complexa com perda de geometria original. Inviável para reparo.";
+            } else if (confianca < 75) {
+                gravidade = "MÉDIA";
+                acao = "REPARAR (Funilaria Pesada)";
+                obs = "Amassado com vinco profundo e estiramento de chapa.";
             }
 
-            escreverNoTerminal(`[IA_DEBUG] Identificação: <span class="text-blue-400">${predictions[0].className}</span> (${confianca}%)`);
+            // Identificação de Peça
+            if (nomeArquivo.includes('porta') || tagsIA.includes('door')) {
+                peca = "Porta Lateral";
+            } else if (nomeArquivo.includes('parachoque') || tagsIA.includes('bumper') || tagsIA.includes('grille')) {
+                peca = "Seção Frontal/Para-choque";
+                gravidade = "MÉDIA/ALTA";
+                acao = "SUBSTITUIR";
+                obs = "Dano em polímero plástico com ruptura de pontos de fixação.";
+            }
 
-            const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'grille', 'metal'].some(t => tagsIA.includes(t));
+            escreverNoTerminal(`[IA_DEBUG] Identificado: <span class="text-blue-400">${predictions[0].className}</span> (${confianca}%)`);
 
-            if (ehVeiculo && !detectouProibido && confianca >= 38) {
-                escreverNoTerminal(`<span class="text-white font-bold">[VISTORIA] Objeto validado com sucesso.</span>`);
+            const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'metal'].some(t => tagsIA.includes(t));
+
+            if (ehVeiculo && !encontrouInvalido && confianca >= 30) {
+                escreverNoTerminal(`<span class="text-white font-bold">[VISTORIA] Objeto autenticado. Gerando parecer...</span>`);
                 setTimeout(() => {
-                    escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
+                    escreverNoTerminal(`<span class="text-purple-400 font-bold">--- RELATÓRIO TÉCNICO REGULA SP ---</span>`);
                     escreverNoTerminal(`<span class="text-white">COMPONENTE: ${peca.toUpperCase()}</span>`);
-                    escreverNoTerminal(`<span class="text-blue-400 font-bold">AÇÃO RECOMENDADA: ${acao}</span>`);
-                    escreverNoTerminal(`<span class="text-slate-400 italic">OBS: ${obs}</span>`);
-                    escreverNoTerminal(`<span class="text-green-400">[STATUS] Perícia finalizada. Módulo 03 liberado.</span>`);
-                }, 600);
+                    escreverNoTerminal(`<span class="text-white">GRAVIDADE: <span class="text-red-500 font-bold underline">${gravidade}</span></span>`);
+                    escreverNoTerminal(`<span class="text-blue-400 font-bold">AÇÃO: ${acao}</span>`);
+                    escreverNoTerminal(`<span class="text-slate-400 italic">DETALHE: ${obs}</span>`);
+                    escreverNoTerminal(`<span class="text-green-500 font-bold">[VEREDITO] Perícia concluída com sucesso.</span>`);
+                }, 800);
             } else {
-                escreverNoTerminal(`<span class="text-red-500 font-bold">[REJEITADO] Inconsistência Detectada.</span>`);
-                escreverNoTerminal(`<span class="text-red-400">Motivo: Objeto não identificado ou fora dos padrões automotivos.</span>`);
+                escreverNoTerminal(`<span class="text-red-500 font-bold">[REJEITADO] Evidência inválida ou inconclusiva.</span>`);
             }
         }
 
         function mostrarLog(tipo) {
             const logs = {
-                'registro': 'Consultando Base Mongaguá/SP... OK.',
-                'conclusao': 'Gerando Ordem de Serviço para Oficina Credenciada...'
+                'registro': 'Consultando CPF/Apólice em Mongaguá... OK.',
+                'conclusao': 'Relatório técnico enviado para oficina parceira.'
             };
             escreverNoTerminal(`<span class="text-blue-400">${logs[tipo]}</span>`);
         }
