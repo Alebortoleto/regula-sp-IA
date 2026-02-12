@@ -6,7 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Avaliação Georreferenciada v10.5</title>
+    <title>Regula SP - Perícia de Precisão v10.6</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
@@ -52,9 +52,8 @@
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Motor v10.5 pronto em Mongaguá/SP. Aguardando dados...</div>
+            <div>> [SISTEMA] Motor v10.6 pronto em Mongaguá/SP. Aguardando dados...</div>
         </main>
-        
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
     </div>
 
@@ -68,7 +67,7 @@
                 model = await mobilenet.load();
                 document.getElementById('ai-status').innerText = "● LOCALIZAÇÃO: -24.0928, -46.6214 (OK)";
                 document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase tracking-tighter";
-                escreverNoTerminal("IA v10.5 Sincronizada em Mongaguá/SP. GPS Ativo.");
+                escreverNoTerminal("IA v10.6 Sincronizada em Mongaguá/SP. GPS Ativo.");
             } catch (e) { escreverNoTerminal("Erro Crítico no Motor Neural."); }
         }
         loadModel();
@@ -104,13 +103,12 @@
                     const conf = Math.round(predictions[0].probability * 100);
                     const pecaDet = ['bumper', 'grille', 'door', 'car', 'vehicle'].some(t => tags.includes(t));
 
-                    if (pecaDet) {
+                    if (pecaDet && conf > 20) {
                         let grav, acao, obs;
                         let peca = file.name.toLowerCase().includes('porta') ? "Porta Lateral" : "Para-choque/Painel";
                         if (conf > 70) { grav = "BAIXA"; acao = "REPARAR (Polimento)"; obs = "Dano superficial."; }
-                        else if (conf > 30 || tags.includes('bumper')) {
-                            grav = "MÉDIA"; acao = "REPARAR (Funilaria Técnica)"; obs = "Recuperação via repuxo em Mongaguá.";
-                        } else { grav = "ALTA"; acao = "SUBSTITUIR COMPONENTE"; obs = "Dano em fixadores estruturais."; }
+                        else if (conf > 40) { grav = "MÉDIA"; acao = "REPARAR (Funilaria Técnica)"; obs = "Recuperação via repuxo plástico."; }
+                        else { grav = "ALTA"; acao = "SUBSTITUIR COMPONENTE"; obs = "Dano em fixadores ou vinco estrutural."; }
 
                         escreverNoTerminal(`[IA_DEBUG] Tag: ${predictions[0].className} (${conf}%)`);
                         escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
@@ -119,8 +117,9 @@
                         document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
                         b2Ok = true;
                     } else { 
-                        escreverNoTerminal(`<span class="text-red-500 font-bold">--- PARECER TÉCNICO CRÍTICO ---</span>`);
+                        escreverNoTerminal(`<span class="text-red-500 font-bold">--- PARECER TÉCNICO CRÍTICO (MONTA GRAVE) ---</span>`);
                         escreverNoTerminal(`GRAVIDADE: PERDA TOTAL (PT) | LOCAL: Mongaguá/SP`);
+                        escreverNoTerminal(`OBS: Destruição severa / Inviabilidade de reparo técnico.`);
                         b2Ok = true;
                     }
                 };
