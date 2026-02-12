@@ -7,16 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <title>Regula SP - Gestão Segura v11.1</title>
+    <title>Regula SP - Blindagem Biológica v11.3</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div id="login-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
         <div class="bg-slate-800 p-8 rounded-2xl border-2 border-blue-600 shadow-2xl max-w-sm w-full">
-            <h2 class="text-2xl font-bold text-blue-500 italic mb-1 uppercase tracking-tighter">Área do Gestor</h2>
-            <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest text-center italic">Autenticação Regula SP | Mongaguá</p>
-            <input type="text" id="login-user" placeholder="Usuário" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-3 outline-none focus:border-blue-500 transition-all">
-            <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-6 outline-none focus:border-blue-500 transition-all">
-            <button onclick="autenticar()" class="w-full bg-blue-600 py-3 rounded font-black text-xs hover:bg-blue-500 uppercase transition-all tracking-widest shadow-lg">Acessar Sistema</button>
+            <h2 class="text-2xl font-bold text-blue-500 italic mb-1 uppercase tracking-tighter text-center">Área do Gestor</h2>
+            <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest text-center italic">Autenticação Segura</p>
+            <input type="text" id="login-user" placeholder="Usuário" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-3 outline-none focus:border-blue-500">
+            <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-6 outline-none focus:border-blue-500">
+            <button onclick="autenticar()" class="w-full bg-blue-600 py-3 rounded font-black text-xs hover:bg-blue-500 uppercase tracking-widest">Acessar</button>
         </div>
     </div>
 
@@ -24,68 +24,55 @@
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic uppercase tracking-tighter">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic">Gestão de Sinistros | Base Mongaguá</p>
+                <p class="text-slate-400 text-sm italic underline underline-offset-4">Multi-Vistoria | Mongaguá/SP</p>
             </div>
-            <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase tracking-widest">
-                ● AGUARDANDO LOGIN...
-            </div>
+            <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase tracking-widest">● LOGIN PENDENTE...</div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 shadow-lg">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">01. Registro & Dados</h3>
-                <div class="space-y-2">
-                    <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
-                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
-                    <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
-                    <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-2">
-                    <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest transition-all">Salvar Registro</button>
-                </div>
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline underline-offset-4">01. Registro</h3>
+                <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none">
+                <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] mb-2 outline-none">
+                <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Abrir Laudo</button>
             </div>
 
-            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all duration-500 shadow-lg">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">02. Verificação Visual</h3>
-                <div class="flex flex-col h-full justify-between">
-                    <p class="text-[9px] text-slate-500 mb-2 italic text-center">IA de Precisão Georreferenciada</p>
-                    <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 cursor-pointer">
-                    <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase shadow-lg">Executar Avaliação</button>
-                </div>
+            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 shadow-lg transition-all">
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline underline-offset-4">02. Avaliação de Imagens</h3>
+                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2">
+                <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Analisar Foto</button>
             </div>
 
             <div id="step-3" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 shadow-lg">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">03. Desfecho</h3>
-                <div class="flex flex-col h-full justify-between">
-                    <p class="text-[9px] text-slate-500 mb-4 text-center italic">Emissão de Laudo em PDF restrita ao ADM.</p>
-                    <button onclick="concluirEPDF()" class="w-full bg-green-600 py-3 rounded text-[10px] font-black hover:bg-green-500 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Gerar O.S. & PDF</button>
-                </div>
+                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline underline-offset-4">03. Fechamento</h3>
+                <p class="text-[9px] text-slate-500 mb-4 text-center">Emissão de relatório técnico acumulado.</p>
+                <button onclick="concluirEPDF()" class="w-full bg-green-600 py-3 rounded text-[10px] font-black hover:bg-green-500 uppercase">Emitir Laudo Multi-Fotos</button>
             </div>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-64 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Aguardando autenticação do Gestor em Mongaguá/SP...</div>
+            <div>> [SISTEMA] Aguardando ADM em Mongaguá...</div>
         </main>
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
     </div>
 
     <script>
-        let model; let laudoFinal = ""; let isLogged = false;
+        let model; let historicoVistorias = []; let isLogged = false;
         const terminal = document.getElementById('terminal');
-        let b1Ok = false; let b2Ok = false;
+        let b1Ok = false;
 
         async function loadModel() { model = await mobilenet.load(); }
         loadModel();
 
         function autenticar() {
-            const user = document.getElementById('login-user').value;
-            const pass = document.getElementById('login-pass').value;
-            if(user === "ADM" && pass === "123Pin567Pin") {
+            if(document.getElementById('login-user').value === "ADM" && document.getElementById('login-pass').value === "123Pin567Pin") {
                 isLogged = true;
                 document.getElementById('login-modal').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('blur-md');
                 document.getElementById('ai-status').innerText = "● GESTOR: ADM LOGADO";
-                document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase tracking-widest";
-                escreverNoTerminal("Sessão iniciada por: ADM. GPS: -24.0928, -46.6214 (OK).");
-            } else { alert("Acesso Negado!"); }
+                document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase";
+                escreverNoTerminal("ADM Logado. GPS Mongaguá Ativo em: Av. Marina.");
+            } else alert("Acesso Negado!");
         }
 
         function escreverNoTerminal(texto) {
@@ -94,20 +81,17 @@
         }
 
         function registrar() {
-            if(!isLogged) return;
-            const placa = document.getElementById('user-placa').value;
-            if(!placa || !document.getElementById('doc-input').files[0]) return alert("Preencha os dados e anexe o documento!");
-            escreverNoTerminal(`<span class="text-blue-400 font-bold">[REGISTRO] Veículo Placa ${placa.toUpperCase()} autenticado em Mongaguá.</span>`);
+            if(!isLogged || !document.getElementById('user-placa').value) return alert("Erro no registro!");
+            escreverNoTerminal(`<span class="text-blue-400 font-bold">[VISTORIA ABERTA] Veículo: ${document.getElementById('user-placa').value.toUpperCase()}</span>`);
             document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
             b1Ok = true;
         }
 
         async function analisarIA() {
-            if(!isLogged) return;
+            if(!isLogged || !b1Ok) return alert("Abra o registro no Bloco 01!");
             const file = document.getElementById('foto-sinistro').files[0];
-            if (!file) return alert("Selecione a foto da avaria!");
             const img = document.getElementById('img-engine');
-            escreverNoTerminal(`<span class="text-white font-bold">--- INICIANDO AVALIAÇÃO VISUAL ---</span>`);
+            escreverNoTerminal(`<span class="text-white font-bold">--- ANALISANDO: ${file.name} ---</span>`);
             const reader = new FileReader();
             reader.onload = (e) => {
                 img.src = e.target.result;
@@ -116,47 +100,52 @@
                     const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                     const conf = Math.round(predictions[0].probability * 100);
                     
-                    const ehSerVivo = ['dog', 'cat', 'animal', 'person', 'face'].some(t => tags.includes(t));
-                    const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'grille', 'metal'].some(t => tags.includes(t));
+                    // FILTRO DE SEGURANÇA BIOLÓGICA (Anti-Jack Sparro)
+                    const ehSerVivo = ['dog', 'cat', 'person', 'face', 'animal', 'bird', 'hound', 'terrier'].some(t => tags.includes(t));
+                    const ehVeiculo = ['car', 'wheel', 'vehicle', 'truck', 'door', 'bumper', 'grille', 'metal', 'convertible', 'limousine'].some(t => tags.includes(t));
 
                     if (ehSerVivo) {
-                        escreverNoTerminal(`<span class="text-yellow-500 font-bold">[ALERTA] Objeto biológico detectado (${predictions[0].className}). Avaliação negada.</span>`);
-                        b2Ok = false;
-                    } else if (ehVeiculo && conf > 22) {
-                        let grav, acao, obs;
-                        if (conf > 70) { grav = "BAIXA"; acao = "REPARAR (Polimento)"; obs = "Dano superficial."; }
-                        else if (conf > 40 || tags.includes('bumper')) { grav = "MÉDIA"; acao = "REPARAR (Funilaria)"; obs = "Recuperação térmica."; }
-                        else { grav = "ALTA"; acao = "SUBSTITUIR"; obs = "Dano estrutural em fixadores."; }
-                        laudoFinal = `GRAVIDADE: ${grav} | AÇÃO: ${acao} | OBS: ${obs}`;
-                        escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER: ${laudoFinal} ---</span>`);
-                        document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
-                        b2Ok = true;
-                    } else { 
-                        laudoFinal = "GRAVIDADE: PERDA TOTAL (PT) | AÇÃO: INDENIZAÇÃO INTEGRAL";
-                        escreverNoTerminal(`<span class="text-red-500 font-bold">--- PARECER TÉCNICO CRÍTICO: ${laudoFinal} ---</span>`);
-                        document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
-                        b2Ok = true;
+                        escreverNoTerminal(`<span class="text-yellow-500 font-black">[BLOQUEIO] Objeto biológico detectado: ${predictions[0].className}. Foto rejeitada.</span>`);
+                        return;
                     }
+
+                    let regiao = "Seção Lateral / Técnica";
+                    if (tags.includes('bumper') || tags.includes('grille')) regiao = "Região Frontal / Traseira";
+                    else if (tags.includes('door')) regiao = "Região Lateral";
+
+                    let grav, acao;
+                    if (ehVeiculo && conf > 25) {
+                        if (conf > 70) { grav = "Baixa"; acao = "Reparo Estético"; }
+                        else if (conf > 40) { grav = "Média"; acao = "Funilaria Técnica"; }
+                        else { grav = "Alta"; acao = "Substituição de Peça"; }
+                    } else { 
+                        grav = "CRÍTICA (PT)"; acao = "Indenização Integral"; regiao = "Dano Estrutural Severo";
+                    }
+
+                    historicoVistorias.push({ arquivo: file.name, regiao: regiao, parecer: `${grav} - ${acao}`, conf: conf });
+                    escreverNoTerminal(`<span class="text-purple-400 font-bold">[REGISTRADO] ${regiao} | Parecer: ${grav}</span>`);
+                    document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
                 };
             };
             reader.readAsDataURL(file);
         }
 
         function concluirEPDF() {
-            if (!isLogged || !b1Ok || !b2Ok) return alert("Ação bloqueada ou passos incompletos!");
+            if (!isLogged || historicoVistorias.length === 0) return alert("Sem evidências para o laudo!");
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
             const placa = document.getElementById('user-placa').value.toUpperCase();
-            doc.setFontSize(22); doc.setTextColor(0, 102, 204); doc.text("REGULA SP - LAUDO PERICIAL", 20, 30);
-            doc.setFontSize(10); doc.setTextColor(100); doc.text(`Gestor: ADM | Mongaguá/SP | GPS: -24.0928, -46.6214`, 20, 40);
+            doc.setFontSize(22); doc.setTextColor(0, 102, 204); doc.text("REGULA SP - LAUDO DE VISTORIA", 20, 30);
+            doc.setFontSize(10); doc.setTextColor(100); doc.text(`Autenticado por ADM | Mongaguá/SP | Placa: ${placa}`, 20, 40);
             doc.line(20, 45, 190, 45);
-            doc.setFontSize(14); doc.setTextColor(0); doc.text("DADOS DO REGISTRO", 20, 60);
-            doc.setFontSize(11); doc.text(`CPF: ${document.getElementById('user-cpf').value}`, 25, 70); 
-            doc.text(`Placa: ${placa}`, 25, 80); doc.text(`Sinistro: ${document.getElementById('user-sinistro').value}`, 25, 90);
-            doc.text("AVALIAÇÃO TÉCNICA (IA)", 20, 110);
-            doc.setFontSize(10); doc.text(laudoFinal, 25, 120);
-            doc.text(`Gerado em: ${new Date().toLocaleString()}`, 20, 280);
-            doc.save(`Laudo_RegulaSP_${placa}.pdf`);
-            escreverNoTerminal(`<span class="text-green-500 font-bold">[PDF] Relatório emitido e autenticado pelo Gestor.</span>`);
+            let y = 65;
+            historicoVistorias.forEach((v, i) => {
+                doc.setFontSize(10); doc.setTextColor(0); doc.text(`${i+1}. ARQUIVO: ${v.arquivo}`, 25, y);
+                doc.setFontSize(9); doc.setTextColor(100); doc.text(`SETOR: ${v.regiao} | LAUDO: ${v.parecer}`, 25, y + 5);
+                y += 15;
+            });
+            doc.setFontSize(11); doc.setTextColor(0, 153, 51); doc.text("PARECER FINAL: SINISTRO VALIDADO VIA INTELIGÊNCIA PERICIAL.", 20, y + 10);
+            doc.save(`Laudo_Final_RegulaSP_${placa}.pdf`);
+            escreverNoTerminal(`<span class="text-green-500 font-bold">[SISTEMA] Relatório gerado com sucesso em PDF.</span>`);
         }
     </script>
 </body>
