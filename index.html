@@ -7,97 +7,169 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <title>Regula SP - Master Engine v11.9</title>
+    <title>Regula SP - Parecer de IA v12.6</title>
+    <style>
+        @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        .scanning::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(34, 197, 94, 0.2), transparent); animation: scan 2s linear infinite; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; border: 2px solid #0f172a; }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans">
+<body class="bg-slate-900 text-slate-100 font-sans pb-20">
+
     <div id="login-modal" class="fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
         <div class="bg-slate-800 p-8 rounded-2xl border-2 border-blue-600 shadow-2xl max-w-sm w-full">
             <h2 class="text-2xl font-bold text-blue-500 italic mb-1 uppercase tracking-tighter text-center">Área do Gestor</h2>
-            <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest text-center italic">Acesso Mongaguá</p>
+            <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest text-center italic">Base Mongaguá/SP</p>
             <div class="space-y-4">
-                <input type="text" id="login-user" placeholder="Usuário (ADM)" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs outline-none focus:border-blue-500 transition-all">
-                <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs outline-none focus:border-blue-500 transition-all">
-                <button onclick="autenticar()" class="w-full bg-blue-600 py-3 rounded font-black text-xs hover:bg-blue-500 uppercase tracking-widest shadow-xl">Acessar Painel</button>
+                <input type="text" id="login-user" placeholder="Usuário (ADM)" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs outline-none focus:border-blue-500">
+                <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs outline-none focus:border-blue-500">
+                <button onclick="autenticar()" class="w-full bg-blue-600 py-3 rounded font-black text-xs hover:bg-blue-500 uppercase tracking-widest shadow-xl transition-all">Acessar Painel</button>
             </div>
         </div>
     </div>
 
-    <div class="max-w-4xl mx-auto p-6 blur-md transition-all duration-1000" id="main-content">
+    <div class="max-w-6xl mx-auto p-6 blur-md transition-all duration-1000" id="main-content">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-4xl font-black text-blue-500 italic uppercase tracking-tighter">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic">Módulo de Vistoria Multi-Fotos | Mongaguá - SP</p>
+                <p class="text-slate-400 text-sm italic uppercase tracking-widest">Módulo de Vistoria Multi-Setorial</p>
             </div>
-            <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-3 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase tracking-widest">● GPS Mongaguá: ATIVO</div>
+            <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-3 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase font-mono tracking-widest">● GPS MONGAGUÁ: -24.0928, -46.6214</div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div id="step-1" class="bg-slate-800 p-6 rounded-xl border-2 border-blue-600 shadow-lg">
                 <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">01. Dados do Sinistro</h3>
                 <div class="space-y-3">
-                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none">
+                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
                     <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none">
                     <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none">
-                    <label class="text-[8px] text-slate-500 block font-bold uppercase">Anexo de Documento (CNH/CRLV)</label>
-                    <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-2">
-                    <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest transition-all">Salvar Sinistro</button>
+                    <label class="text-[8px] text-slate-500 block font-bold uppercase">Documento (CNH/CRLV)</label>
+                    <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500">
+                    <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Salvar Registro</button>
                 </div>
             </div>
 
-            <div id="step-2" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg transition-all duration-500">
-                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">02. Avaliação Visual</h3>
-                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-3">
-                <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase shadow-lg">Avaliar Evidência</button>
+            <div id="box-esq" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
+                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">02. Lateral Esquerda</h3>
+                <input type="file" id="foto-esq" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4" onchange="previewFoto('esq')">
+                <div id="preview-esq" class="hidden mb-2 text-[8px] text-green-500 font-bold">● IMAGEM CARREGADA</div>
+                <button id="btn-esq" onclick="analisarComRigor('esq')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700 hover:border-blue-500">Periciar</button>
+                <div id="prog-esq" class="mt-4 hidden space-y-1">
+                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-esq" class="bg-blue-500 h-1 w-0 transition-all duration-300"></div></div>
+                    <p id="status-esq" class="text-[7px] text-blue-400 italic font-mono uppercase">Processando...</p>
+                </div>
             </div>
 
-            <div id="step-3" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg">
-                <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase text-blue-400 underline underline-offset-8">03. Encerramento</h3>
-                <p class="text-[9px] text-slate-500 mb-4 text-center italic">Gerar Laudo Master Consolidado em PDF</p>
-                <button onclick="concluirEPDF()" class="w-full bg-green-600 py-3 rounded text-[10px] font-black hover:bg-green-500 uppercase tracking-widest shadow-xl">Emitir Laudo Master</button>
+            <div id="box-dir" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
+                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">03. Lateral Direita</h3>
+                <input type="file" id="foto-dir" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4" onchange="previewFoto('dir')">
+                <div id="preview-dir" class="hidden mb-2 text-[8px] text-green-500 font-bold">● IMAGEM CARREGADA</div>
+                <button id="btn-dir" onclick="analisarComRigor('dir')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700 hover:border-blue-500">Periciar</button>
+                <div id="prog-dir" class="mt-4 hidden space-y-1">
+                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-dir" class="bg-blue-500 h-1 w-0 transition-all duration-300"></div></div>
+                    <p id="status-dir" class="text-[7px] text-blue-400 italic font-mono uppercase">Processando...</p>
+                </div>
             </div>
         </div>
 
-        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-64 overflow-y-auto font-mono text-[11px] text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Kernels v11.9 ativos em Mongaguá/SP. Aguardando login...</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div id="box-front" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
+                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">04. Região Frontal</h3>
+                <input type="file" id="foto-front" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4" onchange="previewFoto('front')">
+                <button onclick="analisarComRigor('front')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700">Periciar</button>
+                <div id="prog-front" class="mt-4 hidden space-y-1">
+                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-front" class="bg-blue-500 h-1 w-0 transition-all duration-300"></div></div>
+                </div>
+            </div>
+            <div id="box-rear" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-lg relative overflow-hidden">
+                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">05. Região Traseira</h3>
+                <input type="file" id="foto-rear" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4" onchange="previewFoto('rear')">
+                <button onclick="analisarComRigor('rear')" class="w-full bg-slate-900 py-2 rounded text-[10px] font-black uppercase border border-slate-700">Periciar</button>
+                <div id="prog-rear" class="mt-4 hidden space-y-1">
+                    <div class="w-full bg-black h-1 rounded-full"><div id="bar-rear" class="bg-blue-500 h-1 w-0 transition-all duration-300"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="step-6" class="bg-slate-800 p-8 rounded-xl border-2 border-slate-700 shadow-2xl transition-all duration-700 mb-8">
+            <h3 class="font-bold text-white mb-6 text-[12px] italic uppercase text-green-400 underline underline-offset-8 decoration-2">06. Consolidação de Parecer</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="bg-black/40 p-5 rounded-lg border border-slate-700 space-y-4">
+                    <div class="flex justify-between text-[10px] uppercase font-bold"><span class="text-slate-400">Índice de Avarias:</span> <span id="score-total" class="text-white">-- %</span></div>
+                    <div class="w-full bg-slate-900 rounded-full h-3"><div id="bar-total" class="bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 h-3 rounded-full w-0 transition-all duration-1000"></div></div>
+                    <div class="grid grid-cols-3 text-[6px] text-slate-500 uppercase font-black text-center"><span>Baixa</span><span>Média</span><span>PT (50%+)</span></div>
+                </div>
+                <div class="text-center p-4 border-2 border-dashed border-slate-700 rounded-lg">
+                    <p class="text-[9px] text-slate-500 italic uppercase mb-2">Parecer de IA Consolidado:</p>
+                    <div id="status-final" class="text-2xl font-black italic uppercase tracking-tighter text-slate-600">AGUARDANDO DADOS</div>
+                </div>
+            </div>
+            <div class="mt-8 flex flex-col md:flex-row gap-4 justify-center">
+                <button onclick="consolidarResultados()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl transition-all active:scale-95">Consolidar Parecer de IA</button>
+                <button id="btn-pdf-final" onclick="gerarPDFFinal()" class="hidden bg-green-600 hover:bg-green-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl animate-bounce">Gerar Documento (PDF)</button>
+            </div>
+        </div>
+
+        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 h-40 overflow-y-auto font-mono text-[10px] text-green-500 border-t-4 border-t-blue-500">
+            <div>> [SISTEMA] Motor v12.6 pronto em Mongaguá. Aguardando login...</div>
         </main>
+        
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
     </div>
 
     <script>
-        let model; let historico = []; let isLogged = false;
+        let model; let historico = []; let isLogged = false; let b1Ok = false;
         const terminal = document.getElementById('terminal');
-        let b1Ok = false;
 
-        async function loadModel() { model = await mobilenet.load(); }
+        async function loadModel() { 
+            escreverNoTerminal("Sincronizando Tensores de Visão Computacional...");
+            model = await mobilenet.load(); 
+            escreverNoTerminal("IA MobileNet v2 Sincronizada com Base Mongaguá.");
+        }
         loadModel();
 
-        function escreverNoTerminal(texto) {
-            terminal.innerHTML += `<div class="mt-2">> ${texto}</div>`;
-            terminal.scrollTop = terminal.scrollHeight;
+        function escreverNoTerminal(t) { 
+            terminal.innerHTML += `<div class="mt-1">> ${t}</div>`; 
+            terminal.scrollTop = terminal.scrollHeight; 
         }
 
         function autenticar() {
             if(document.getElementById('login-user').value === "ADM" && document.getElementById('login-pass').value === "123Pin567Pin") {
-                isLogged = true;
-                document.getElementById('login-modal').classList.add('hidden');
+                isLogged = true; document.getElementById('login-modal').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('blur-md');
-                escreverNoTerminal("ADM Autenticado. GPS: -24.0928, -46.6214 (Mongaguá).");
-            } else alert("Acesso Negado!");
+                escreverNoTerminal("ADM Logado. GPS: -24.0928, -46.6214.");
+            } else alert("Negado!");
         }
 
         function registrar() {
-            const p = document.getElementById('user-placa').value;
-            const s = document.getElementById('user-sinistro').value;
-            const doc = document.getElementById('doc-input').files[0];
-            if(!isLogged || !p || !s || !doc) return alert("Erro: Placa, Sinistro e Documento são obrigatórios!");
-            escreverNoTerminal(`<span class="text-blue-400 font-bold">[REGISTRO] Veículo ${p.toUpperCase()} vinculado ao Sinistro ${s}.</span>`);
+            if(!isLogged || !document.getElementById('user-placa').value) return alert("Erro de Registro!");
+            b1Ok = true; escreverNoTerminal(`[SINISTRO] Registro aberto para Placa: ${document.getElementById('user-placa').value.toUpperCase()}`);
             document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
-            b1Ok = true;
         }
 
-        async function analisarIA() {
+        function previewFoto(lado) { document.getElementById(`preview-${lado}`).classList.remove('hidden'); }
+
+        async function analisarComRigor(lado) {
             if(!b1Ok) return alert("Complete o Bloco 01!");
-            const file = document.getElementById('foto-sinistro').files[0];
+            const input = document.getElementById(`foto-${lado}`);
+            if(!input.files[0]) return alert("Anexe a foto!");
+            
+            const prog = document.getElementById(`prog-${lado}`);
+            const bar = document.getElementById(`bar-${lado}`);
+            const stat = document.getElementById(`status-${lado}`);
+            prog.classList.remove('hidden');
+            
+            const etapas = ["Validando Biometria...", "Mapeando Impactos...", "Analise Estrutural...", "Finalizando..."];
+            for(let i=0; i<=100; i+=25) {
+                bar.style.width = i + '%';
+                if(stat) stat.innerText = etapas[i/25];
+                escreverNoTerminal(`[${lado.toUpperCase()}] ${i}% - ${etapas[i/25]}`);
+                await new Promise(r => setTimeout(r, 500));
+            }
+
             const img = document.getElementById('img-engine');
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -106,58 +178,57 @@
                     const predictions = await model.classify(img);
                     const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                     const conf = Math.round(predictions[0].probability * 100);
+
+                    if (['person', 'human', 'face', 'dog', 'cat'].some(t => tags.includes(t))) {
+                        escreverNoTerminal(`<span class="text-yellow-500 font-bold">[BLOQUEIO] Ser vivo detectado.</span>`);
+                        return;
+                    }
+
+                    let peso = conf > 40 ? 8 : conf > 15 ? 18 : 25; 
+                    let desc = conf > 40 ? "Baixa Gravidade (Reparar)" : conf > 15 ? "Média Gravidade (Substituir)" : "Crítica (Perda Total)";
                     
-                    // TRAVA BIOLÓGICA ABSOLUTA: Interrompe antes de qualquer cálculo de dano
-                    if (['person', 'face', 'human', 'man', 'woman', 'dog', 'cat', 'jack sparow'].some(t => tags.includes(t))) {
-                        return escreverNoTerminal(`<span class="text-yellow-500 font-black">[BLOQUEIO] Ser vivo detectado (${predictions[0].className}). Foto inválida para perícia automotiva.</span>`);
-                    }
-
-                    let local = "Geral/Técnico";
-                    let grav, acao;
-                    const pecaDet = ['bumper', 'grille', 'door', 'wheel', 'window', 'car', 'mirror'].some(t => tags.includes(t));
-
-                    if (pecaDet) {
-                        local = tags.includes('bumper') ? "Seção Frontal/Traseira" : tags.includes('door') ? "Seção Lateral" : "Componente Externo";
-                        if (conf > 40) { grav = "Baixa/Média"; acao = "Reparar"; }
-                        else if (conf > 15) { grav = "Alta"; acao = "Substituir"; }
-                        else { grav = "Crítica (PT)"; acao = "Indenizar"; }
-                    } else {
-                        grav = "Crítica (PT)"; acao = "Indenizar"; local = "Dano Estrutural Severo";
-                    }
-
-                    historico.push({ arquivo: file.name, local: local, parecer: `${grav} (${acao})`, geo: "Mongaguá/SP" });
-                    escreverNoTerminal(`<span class="text-purple-400 font-bold">[OK] Foto: ${file.name} | Local: ${local} | Gravidade: ${grav}</span>`);
-                    document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
-                };
-            };
-            reader.readAsDataURL(file);
+                    historico.push({ setor: lado, parecer: desc, valor: peso, imgData: e.target.result });
+                    escreverNoTerminal(`<span class="text-purple-400 font-bold">[OK] ${lado.toUpperCase()}: ${desc}</span>`);
+                    document.getElementById(`box-${lado}`).classList.replace('border-slate-700', 'border-green-500');
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
         }
 
-        function concluirEPDF() {
-            if (!b1Ok || historico.length === 0) return alert("Faltam evidências registradas!");
+        function consolidarResultados() {
+            if(historico.length === 0) return alert("Nenhuma perícia realizada!");
+            let total = historico.reduce((acc, item) => acc + item.valor, 0);
+            if(total > 100) total = 100;
+            document.getElementById('score-total').innerText = total + "%";
+            document.getElementById('bar-total').style.width = total + "%";
+
+            let ver = total >= 50 ? "PERDA TOTAL (PT)" : total >= 26 ? "CONSERTO AUTORIZADO" : "BAIXA GRAVIDADE";
+            let color = total >= 50 ? "text-red-500" : total >= 26 ? "text-yellow-500" : "text-green-500";
+            
+            const el = document.getElementById('status-final');
+            el.innerText = ver; el.className = `text-2xl font-black italic uppercase tracking-tighter ${color}`;
+            document.getElementById('btn-pdf-final').classList.remove('hidden');
+            escreverNoTerminal(`[PARECER] Cálculo Final: ${total}%`);
+        }
+
+        function gerarPDFFinal() {
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
             const placa = document.getElementById('user-placa').value.toUpperCase();
-            
-            doc.setFontSize(22); doc.setTextColor(0, 102, 204); doc.text("REGULA SP - LAUDO MASTER", 20, 30);
-            doc.setFontSize(10); doc.setTextColor(100); doc.text(`Mongaguá/SP | GPS: -24.0928, -46.6214 | Emissor: ADM`, 20, 40);
-            doc.line(20, 45, 190, 45);
+            doc.setFontSize(22); doc.setTextColor(0, 102, 204); doc.text("REGULA SP - PARECER DE IA", 20, 20);
+            doc.setFontSize(10); doc.setTextColor(100); doc.text(`Base: Mongaguá/SP | Placa: ${placa}`, 20, 28);
+            doc.line(20, 32, 190, 32);
 
-            doc.setFontSize(12); doc.setTextColor(0); doc.text("DADOS DO SINISTRO", 20, 55);
-            doc.setFontSize(10); doc.text(`Placa: ${placa}`, 25, 65);
-            doc.text(`CPF: ${document.getElementById('user-cpf').value}`, 25, 72);
-            doc.text(`Nº Sinistro: ${document.getElementById('user-sinistro').value}`, 25, 79);
-            doc.text(`Documento Anexo: ${document.getElementById('doc-input').files[0].name}`, 25, 86);
-
-            doc.text("EVIDÊNCIAS COLETADAS (IA)", 20, 105);
-            let y = 115;
-            historico.forEach((v, i) => {
-                doc.text(`${i+1}. ARQUIVO: ${v.arquivo} | LOCAL: ${v.local} | LAUDO: ${v.parecer}`, 25, y);
-                y += 10;
+            let y = 45;
+            historico.forEach((h, i) => {
+                if (y > 230) { doc.addPage(); y = 20; }
+                doc.setFontSize(11); doc.setTextColor(0); doc.text(`EVIDÊNCIA ${i+1}: ${h.setor.toUpperCase()}`, 20, y);
+                doc.setFontSize(9); doc.setTextColor(80); doc.text(`PARECER: ${h.parecer}`, 20, y + 5);
+                doc.addImage(h.imgData, 'JPEG', 20, y + 8, 55, 40);
+                y += 60;
             });
 
-            doc.setFontSize(11); doc.setTextColor(0, 153, 51); doc.text("PARECER FINAL: SINISTRO VALIDADO E AUTORIZADO EM MONGAGUÁ.", 20, y + 10);
-            doc.save(`Laudo_Master_RegulaSP_${placa}.pdf`);
-            escreverNoTerminal(`<span class="text-green-500 font-bold">[PDF] Relatório Master Gerado. Processo Concluído.</span>`);
+            doc.setFontSize(14); doc.setTextColor(0, 102, 204); doc.text(`PARECER FINAL: ${document.getElementById('status-final').innerText}`, 20, y + 10);
+            doc.save(`Parecer_IA_${placa}.pdf`);
         }
     </script>
 </body>
