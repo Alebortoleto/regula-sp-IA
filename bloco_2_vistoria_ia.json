@@ -1,0 +1,44 @@
+{
+  "modulo": "Vistoria Digital Assistida",
+  "ai_model_config": {
+    "vision_engine": "Computer Vision - Damage Detection",
+    "real_time_guidance": true,
+    "image_quality_check": "minimum_1080p"
+  },
+  "inspection_logic": {
+    "step_1_360_view": {
+      "action": "video_scan_around_vehicle",
+      "ai_task": "frame_extraction_and_3d_mapping",
+      "validation": "verify_if_car_matches_license_plate"
+    },
+    "step_2_damage_capture": {
+      "action": "guided_photos",
+      "targets": ["dianteira", "traseira", "lateral_esquerda", "lateral_direita", "motor", "painel_km"],
+      "ai_analysis": {
+        "detect_dent": "amassados",
+        "detect_scratch": "riscos",
+        "detect_broken_parts": "peças_quebradas",
+        "detect_pre_existing_damage": "danos_pre_existentes"
+      }
+    },
+    "step_3_fraud_prevention": {
+      "ai_tasks": [
+        "check_metadata_gps_match",
+        "detect_replayed_video_or_photos_of_screens",
+        "analyze_lighting_consistency"
+      ]
+    }
+  },
+  "output_generation": {
+    "repair_estimate_ai": {
+      "database_lookup": "local_parts_market_price",
+      "labor_cost_estimation": "standard_table_SP",
+      "total_estimate_currency": "BRL"
+    },
+    "decision_tree": {
+      "light_damage": "auto_approval_to_workshop",
+      "medium_damage": "send_to_human_adjuster",
+      "heavy_damage_or_total_loss": "trigger_towing_service"
+    }
+  }
+}
