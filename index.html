@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <title>Regula SP - AI Dashboard</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
@@ -11,85 +13,93 @@
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500">Regula SP</h1>
-                <p class="text-slate-400 text-sm">Painel de Monitoramento de IA v2.0</p>
+                <p class="text-slate-400 text-sm">Painel de Monitoramento de IA Real-Time</p>
             </div>
-            <div class="text-right text-xs bg-slate-800 p-2 rounded border border-blue-500/30">
-                <span class="block text-green-400">● Sistema Online</span>
-                <span class="text-slate-500">Localização: Mongaguá, SP</span>
+            <div class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30">
+                <span id="ai-status" class="block text-yellow-400">● Carregando Modelos IA...</span>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition-all text-left">
-                <h3 class="font-bold text-blue-400 mb-2">1. Registro</h3>
+            <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
+                <h3 class="font-bold text-blue-400 mb-2 text-sm">1. Registro</h3>
                 <p class="text-[10px] text-slate-400">Validar CNH e Biometria</p>
             </button>
 
             <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-all">
-                <h3 class="font-bold text-blue-400 mb-2">2. Vistoria IA</h3>
-                <p class="text-[10px] text-slate-400 mb-3">Análise de Evidência Visual:</p>
-                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-500 file:text-white mb-2">
-                <button onclick="simularAnaliseFoto()" class="w-full bg-blue-600 py-1 rounded text-[10px] font-bold hover:bg-blue-500 transition-colors">EXECUTAR VISÃO COMPUTACIONAL</button>
+                <h3 class="font-bold text-blue-400 mb-2 text-sm">2. Vistoria IA Real</h3>
+                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[10px] text-slate-500 mb-2">
+                <button id="btn-analisar" onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-bold hover:bg-blue-500">EXECUTAR VISÃO COMPUTACIONAL</button>
             </div>
 
-            <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition-all text-left">
-                <h3 class="font-bold text-blue-400 mb-2">3. Conclusão</h3>
+            <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
+                <h3 class="font-bold text-blue-400 mb-2 text-sm">3. Conclusão</h3>
                 <p class="text-[10px] text-slate-400">Liquidação e Voucher</p>
             </button>
         </div>
 
-        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-xs leading-relaxed">
-            <div class="text-blue-500">> Interface de Regulação Iniciada. Aguardando input do campo...</div>
+        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-xs leading-relaxed text-green-500">
+            <div>> [SISTEMA] Aguardando inicialização dos modelos neurais...</div>
         </main>
+        
+        <img id="img-preview" style="display:none;" />
     </div>
 
     <script>
+        let model;
         const terminal = document.getElementById('terminal');
+        const aiStatus = document.getElementById('ai-status');
+
+        // Carrega o modelo MobileNet ao iniciar
+        async function loadModel() {
+            model = await mobilenet.load();
+            aiStatus.innerText = "● IA Pronta (Local)";
+            aiStatus.classList.replace('text-yellow-400', 'text-green-400');
+            escreverNoTerminal("Motor de Visão Computacional MobileNet v2 carregado com sucesso.");
+        }
+        loadModel();
+
+        async function analisarComIAReal() {
+            const fileInput = document.getElementById('foto-sinistro');
+            if (fileInput.files.length === 0) return alert("Selecione uma foto!");
+
+            const file = fileInput.files[0];
+            const imgElement = document.getElementById('img-preview');
+            imgElement.src = URL.createObjectURL(file);
+
+            escreverNoTerminal(`[SISTEMA] Analisando pixels de: ${file.name}...`);
+
+            // Espera a imagem carregar para a IA ler
+            imgElement.onload = async () => {
+                const predictions = await model.classify(imgElement);
+                
+                // Verifica se nas predições existem termos automotivos
+                const termosCarro = ['car', 'wheel', 'vehicle', 'truck', 'tire', 'bumper', 'grille', 'convertible'];
+                const encontrouCarro = predictions.some(p => 
+                    termosCarro.some(termo => p.className.toLowerCase().includes(termo))
+                );
+
+                escreverNoTerminal(`[IA_DEBUG] Objeto detectado: ${predictions[0].className} (${Math.round(predictions[0].probability * 100)}% de certeza)`);
+
+                if (encontrouCarro) {
+                    escreverNoTerminal(`<span class="text-white font-bold">[RESULTADO] Veículo identificado. Iniciando mapeamento de danos...</span>`);
+                } else {
+                    escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Sinistro rejeitado automaticamente. Motivo: A imagem não contém um veículo ou componente automotivo válido.</span>`);
+                }
+            };
+        }
 
         function escreverNoTerminal(texto) {
-            terminal.innerHTML += `<div class="mt-3 border-l border-slate-800 pl-2 font-mono">${texto}</div>`;
+            terminal.innerHTML += `<div class="mt-2">> ${texto}</div>`;
             terminal.scrollTop = terminal.scrollHeight;
         }
 
         function mostrarLog(tipo) {
             const logs = {
-                'registro': '<span class="text-yellow-500">[SISTEMA]</span> Consultando base logic/bloco_1...<br><span class="text-green-500">[IA]</span> Documentação validada. Motorista habilitado.',
-                'conclusao': '<span class="text-yellow-500">[DECISÃO]</span> Aplicando regras do bloco_3...<br><span class="text-blue-400">[IA]</span> Sinistro de baixa complexidade. Enviando ordem de serviço para oficina credenciada.'
+                'registro': 'Consultando base logic/bloco_1... Documentação validada.',
+                'conclusao': 'Aplicando regras do bloco_3... Enviando ordem de serviço.'
             };
             escreverNoTerminal(logs[tipo]);
-        }
-
-        function simularAnaliseFoto() {
-            const fileInput = document.getElementById('foto-sinistro');
-            if (fileInput.files.length === 0) {
-                alert("Por favor, selecione uma imagem para análise.");
-                return;
-            }
-
-            const arquivo = fileInput.files[0];
-            const nomeArquivo = arquivo.name.toLowerCase();
-            const tamanhoKB = arquivo.size / 1024;
-
-            escreverNoTerminal(`<span class="text-blue-400">[UPLOAD]</span> Analisando metadados de: ${nomeArquivo}`);
-
-            setTimeout(() => {
-                // LÓGICA DE FILTRO REALÍSTICA (Heurística)
-                // Lista de termos que sugerem que a foto NÃO é de um veículo ou é genérica demais
-                const termosInvalidos = ['dog', 'cachorro', 'pet', 'animal', 'comida', 'selfie', 'print', 'screenshot'];
-                const ehSuspeito = termosInvalidos.some(termo => nomeArquivo.includes(termo));
-
-                if (ehSuspeito || tamanhoKB < 40) {
-                    escreverNoTerminal(`<span class="text-red-500 font-bold">[ALERTA DE SEGURANÇA]</span>`);
-                    escreverNoTerminal(`<span class="text-red-400 italic">Inconsistência detectada: O objeto na imagem não possui características geométricas de um veículo sinistrado.</span>`);
-                    escreverNoTerminal(`<span class="text-yellow-500">[SISTEMA]</span> Registro de incidente enviado para auditoria humana por possível "False Positive".`);
-                } else {
-                    escreverNoTerminal(`<span class="text-purple-400">[IA_VISION]</span> Mapeando pontos de impacto...`);
-                    setTimeout(() => {
-                        escreverNoTerminal(`<span class="text-white font-bold">[ANÁLISE]</span> Veículo: Detectado.<br><span class="text-white font-bold">[DANO]</span> Deformação plástica em painel externo identificado.`);
-                        escreverNoTerminal(`<span class="text-green-500">[INFO]</span> Foto validada com sucesso via rede neural local.`);
-                    }, 1500);
-                }
-            }, 1000);
         }
     </script>
 </body>
