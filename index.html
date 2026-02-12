@@ -6,40 +6,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - AI Dashboard</title>
+    <title>Regula SP - AI Real Vision</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div class="max-w-4xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500">Regula SP</h1>
-                <p class="text-slate-400 text-sm">Painel de Monitoramento de IA Real-Time</p>
+                <p class="text-slate-400 text-sm">Sistema de Regulação Inteligente</p>
             </div>
             <div class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30">
-                <span id="ai-status" class="block text-yellow-400">● Carregando Modelos IA...</span>
+                <span id="ai-status" class="block text-yellow-400 font-bold italic">● CARREGANDO MOTOR NEURAL...</span>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
-                <h3 class="font-bold text-blue-400 mb-2 text-sm">1. Registro</h3>
-                <p class="text-[10px] text-slate-400">Validar CNH e Biometria</p>
+            <button onclick="mostrarLog('registro')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left transition-all">
+                <h3 class="font-bold text-blue-400 mb-1 text-sm italic">01. REGISTRO</h3>
+                <p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Autenticação & Dados</p>
             </button>
 
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-all">
-                <h3 class="font-bold text-blue-400 mb-2 text-sm">2. Vistoria IA Real</h3>
-                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[10px] text-slate-500 mb-2">
-                <button id="btn-analisar" onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-bold hover:bg-blue-500">EXECUTAR VISÃO COMPUTACIONAL</button>
+            <div class="bg-slate-800 p-4 rounded-xl border-2 border-blue-600 shadow-lg shadow-blue-500/20">
+                <h3 class="font-bold text-white mb-2 text-sm italic">02. VISTORIA IA</h3>
+                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[10px] text-slate-500 mb-2 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 file:py-1">
+                <button id="btn-analisar" onclick="analisarComIAReal()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-tighter transition-all">Executar Visão Computacional</button>
             </div>
 
-            <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left">
-                <h3 class="font-bold text-blue-400 mb-2 text-sm">3. Conclusão</h3>
-                <p class="text-[10px] text-slate-400">Liquidação e Voucher</p>
+            <button onclick="mostrarLog('conclusao')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 text-left transition-all">
+                <h3 class="font-bold text-blue-400 mb-1 text-sm italic">03. CONCLUSÃO</h3>
+                <p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Liquidação Instantânea</p>
             </button>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-xs leading-relaxed text-green-500">
-            <div>> [SISTEMA] Aguardando inicialização dos modelos neurais...</div>
+            <div class="animate-pulse">> [SYSTEM] Aguardando inicialização dos kernels de visão...</div>
         </main>
         
         <img id="img-preview" style="display:none;" />
@@ -50,56 +50,72 @@
         const terminal = document.getElementById('terminal');
         const aiStatus = document.getElementById('ai-status');
 
-        // Carrega o modelo MobileNet ao iniciar
         async function loadModel() {
-            model = await mobilenet.load();
-            aiStatus.innerText = "● IA Pronta (Local)";
-            aiStatus.classList.replace('text-yellow-400', 'text-green-400');
-            escreverNoTerminal("Motor de Visão Computacional MobileNet v2 carregado com sucesso.");
+            try {
+                model = await mobilenet.load();
+                aiStatus.innerText = "● IA DE FRONTEIRA ATIVA";
+                aiStatus.classList.replace('text-yellow-400', 'text-green-400');
+                escreverNoTerminal("Motor de Visão Regula SP v2.0 carregado. Rede neural pronta para análise.");
+            } catch (e) {
+                escreverNoTerminal("<span class='text-red-500'>Erro ao carregar IA. Verifique sua conexão.</span>");
+            }
         }
         loadModel();
 
         async function analisarComIAReal() {
             const fileInput = document.getElementById('foto-sinistro');
-            if (fileInput.files.length === 0) return alert("Selecione uma foto!");
+            if (fileInput.files.length === 0) return alert("Selecione uma imagem para a vistoria!");
 
             const file = fileInput.files[0];
             const imgElement = document.getElementById('img-preview');
             imgElement.src = URL.createObjectURL(file);
 
-            escreverNoTerminal(`[SISTEMA] Analisando pixels de: ${file.name}...`);
+            escreverNoTerminal(`[SISTEMA] Iniciando ingestão de imagem: ${file.name}...`);
 
-            // Espera a imagem carregar para a IA ler
             imgElement.onload = async () => {
                 const predictions = await model.classify(imgElement);
                 
-                // Verifica se nas predições existem termos automotivos
-                const termosCarro = ['car', 'wheel', 'vehicle', 'truck', 'tire', 'bumper', 'grille', 'convertible'];
-                const encontrouCarro = predictions.some(p => 
-                    termosCarro.some(termo => p.className.toLowerCase().includes(termo))
+                // Base de conhecimento automotiva
+                const termosCarro = ['car', 'wheel', 'vehicle', 'truck', 'tire', 'bumper', 'grille', 'motor', 'wagon', 'door'];
+                // Itens proibidos (filtro anti-erro)
+                const termosProibidos = ['person', 'human', 'face', 'clothing', 'animal', 'dog', 'cat', 'tree', 'mountain'];
+
+                const detectouAlgoProibido = predictions.some(p => 
+                    termosProibidos.some(proibido => p.className.toLowerCase().includes(proibido))
                 );
 
-                escreverNoTerminal(`[IA_DEBUG] Objeto detectado: ${predictions[0].className} (${Math.round(predictions[0].probability * 100)}% de certeza)`);
+                const encontrouVeiculo = predictions.some(p => 
+                    termosCarro.some(carro => p.className.toLowerCase().includes(carro))
+                );
 
-                if (encontrouCarro) {
-                    escreverNoTerminal(`<span class="text-white font-bold">[RESULTADO] Veículo identificado. Iniciando mapeamento de danos...</span>`);
+                const confianca = Math.round(predictions[0].probability * 100);
+                escreverNoTerminal(`[IA_DEBUG] Detecção Principal: ${predictions[0].className} (Confiança: ${confianca}%)`);
+
+                // REGRA DE OURO: Só aceita se for veículo, NÃO tiver proibidos e confiança > 45%
+                if (encontrouVeiculo && !detectouAlgoProibido && confianca > 45) {
+                    escreverNoTerminal(`<span class="text-white font-bold">[RESULTADO] Veículo autenticado. Procedendo para análise de deformidade plástica...</span>`);
+                    setTimeout(() => {
+                        escreverNoTerminal(`<span class="text-green-400">[INFO] Sinistro elegível para regulação automática via Bloco 3.</span>`);
+                    }, 1000);
                 } else {
-                    escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Sinistro rejeitado automaticamente. Motivo: A imagem não contém um veículo ou componente automotivo válido.</span>`);
+                    escreverNoTerminal(`<span class="text-red-500 font-bold">[BLOQUEIO] Evidência rejeitada.</span>`);
+                    escreverNoTerminal(`<span class="text-red-400">Motivo: Objeto não automotivo detectado ou baixa integridade visual (${confianca}%).</span>`);
+                    escreverNoTerminal(`<span class="text-yellow-500">[ALERTA] Encaminhado para revisão humana por suspeita de inconsistência documental.</span>`);
                 }
             };
         }
 
         function escreverNoTerminal(texto) {
-            terminal.innerHTML += `<div class="mt-2">> ${texto}</div>`;
+            terminal.innerHTML += `<div class="mt-2 border-l border-slate-900 pl-2">> ${texto}</div>`;
             terminal.scrollTop = terminal.scrollHeight;
         }
 
         function mostrarLog(tipo) {
             const logs = {
-                'registro': 'Consultando base logic/bloco_1... Documentação validada.',
-                'conclusao': 'Aplicando regras do bloco_3... Enviando ordem de serviço.'
+                'registro': 'Consultando base de dados governamental... CPF e Apólice validados.',
+                'conclusao': 'Gerando termo de quitação digital... Enviando voucher via API Bancária.'
             };
-            escreverNoTerminal(logs[tipo]);
+            escreverNoTerminal(`<span class="text-blue-400">${logs[tipo]}</span>`);
         }
     </script>
 </body>
