@@ -1,4 +1,17 @@
-# Regula SP - Ecossistema de Regulação com IA 🚀
+## 🌐 Demonstração Online
+Visualizar protótipo do painel: **[CLIQUE AQUI PARA ACESSAR O APP](COLE_AQUI_O_LINK_QUE_O_GITHUB_GEROU)**
+
+---
+
+## 🏗️ Estrutura do Projeto (Arquitetura de IA)
+
+Os processos estão divididos em camadas lógicas para fácil implementação em backend (Python/Node):
+
+* **[Camada 1: Registro e Triagem](./logic/bloco_1_registro_logica.json)** - Autenticação e NLP.
+* **[Camada 2: Motor de Visão](./logic/bloco_2_vistoria_ia.json)** - Detecção de danos via Computer Vision.
+* **[Camada 3: Liquidação](./logic/bloco_3_encerramento_e_oficinas.json)** - Finalização e pagamento.
+*
+* # Regula SP - Ecossistema de Regulação com IA 🚀
 
 Este repositório contém a documentação lógica e a estrutura de dados para a nova plataforma da **Regula SP**, focada em automação de sinistros utilizando Inteligência Artificial Multimodal.
 
