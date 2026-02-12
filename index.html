@@ -6,71 +6,89 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <title>Regula SP - Full Engine v10.7</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Regula SP - Gestão Segura v11.0</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
-    <div class="max-w-4xl mx-auto p-6">
+    <div id="login-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 p-8 rounded-2xl border-2 border-blue-600 shadow-2xl max-w-sm w-full">
+            <h2 class="text-2xl font-bold text-blue-500 italic mb-1 uppercase tracking-tighter">Área do Gestor</h2>
+            <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest">Autenticação Regula SP</p>
+            <input type="text" id="login-user" placeholder="Usuário" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-3 outline-none focus:border-blue-500">
+            <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs mb-6 outline-none focus:border-blue-500">
+            <button onclick="autenticar()" class="w-full bg-blue-600 py-3 rounded font-black text-xs hover:bg-blue-500 uppercase transition-all tracking-widest">Acessar Sistema</button>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-6 blur-sm transition-all duration-700" id="main-content">
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-blue-500 italic uppercase tracking-tighter">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic">Avaliação Georreferenciada | Base Mongaguá</p>
+                <p class="text-slate-400 text-sm italic">Gestão de Sinistros | Base Mongaguá</p>
             </div>
             <div id="ai-status" class="text-right text-[10px] bg-slate-800 p-2 rounded border border-blue-500/30 text-yellow-400 font-bold uppercase tracking-widest">
-                ● SINCRONIZANDO GPS...
+                ● AGUARDANDO LOGIN...
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 shadow-lg transition-all duration-500">
+            <div id="step-1" class="bg-slate-800 p-5 rounded-xl border-2 border-blue-600 shadow-lg">
                 <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">01. Registro & Dados</h3>
                 <div class="space-y-2">
-                    <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
-                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
-                    <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500 transition-colors">
-                    <label class="block text-[8px] text-slate-500 font-black uppercase">Anexar Documento (CNH/CRLV)</label>
+                    <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
+                    <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
+                    <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
                     <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-2">
-                    <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase shadow-lg active:scale-95 transition-all">Salvar Registro</button>
+                    <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Salvar Registro</button>
                 </div>
             </div>
 
-            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all duration-500 shadow-lg">
+            <div id="step-2" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 shadow-lg">
                 <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">02. Verificação Visual</h3>
                 <div class="flex flex-col h-full justify-between">
-                    <p class="text-[9px] text-slate-500 mb-2 italic text-center">IA de Precisão MobileNet v2.1</p>
+                    <p class="text-[9px] text-slate-500 mb-2 italic text-center">IA de Precisão Georreferenciada</p>
                     <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 cursor-pointer">
-                    <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Executar Avaliação</button>
+                    <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase">Executar Avaliação</button>
                 </div>
             </div>
 
-            <div id="step-3" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 transition-all duration-500 shadow-lg font-sans">
+            <div id="step-3" class="bg-slate-800 p-5 rounded-xl border-2 border-slate-700 shadow-lg">
                 <h3 class="font-bold text-white mb-3 text-[10px] italic uppercase tracking-widest text-blue-400 underline underline-offset-4">03. Desfecho</h3>
                 <div class="flex flex-col h-full justify-between">
-                    <p class="text-[9px] text-slate-500 mb-4 text-center">Liquidação automática via protocolo de smart-contract em Mongaguá.</p>
-                    <button onclick="concluir()" class="w-full bg-green-600 py-3 rounded text-[10px] font-black hover:bg-green-500 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Gerar Ordem de Serviço</button>
+                    <p class="text-[9px] text-slate-500 mb-4 text-center italic">Liberação de PDF restrita ao Gestor ADM.</p>
+                    <button onclick="concluirEPDF()" class="w-full bg-green-600 py-3 rounded text-[10px] font-black hover:bg-green-500 uppercase tracking-widest shadow-lg">Gerar O.S. & PDF</button>
                 </div>
             </div>
         </div>
 
-        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-80 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
-            <div>> [SISTEMA] Motor v10.7 pronto em Mongaguá/SP. Aguardando dados para processamento...</div>
+        <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 shadow-2xl h-64 overflow-y-auto font-mono text-[11px] leading-relaxed text-green-500 border-t-4 border-t-blue-500">
+            <div>> [SISTEMA] Aguardando autenticação do Gestor para liberar terminais...</div>
         </main>
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
     </div>
 
     <script>
-        let model;
+        let model; let laudoFinal = ""; let isLogged = false;
         const terminal = document.getElementById('terminal');
         let b1Ok = false; let b2Ok = false;
 
         async function loadModel() {
-            try {
-                model = await mobilenet.load();
-                document.getElementById('ai-status').innerText = "● LOCALIZAÇÃO: -24.0928, -46.6214 (OK)";
-                document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase tracking-tighter";
-                escreverNoTerminal("IA v10.7 Sincronizada em Mongaguá/SP. Protocolo Georreferenciado Ativo.");
-            } catch (e) { escreverNoTerminal("Erro Crítico no Motor Neural."); }
+            model = await mobilenet.load();
         }
         loadModel();
+
+        function autenticar() {
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            if(user === "ADM" && pass === "123Pin567Pin") {
+                isLogged = true;
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('blur-sm');
+                document.getElementById('ai-status').innerText = "● GESTOR: ADM LOGADO";
+                document.getElementById('ai-status').className = "text-right text-[10px] bg-slate-800 p-2 rounded border border-green-500/30 text-green-400 font-bold uppercase";
+                escreverNoTerminal("Sessão iniciada por: ADM. GPS Mongaguá Ativo.");
+            } else { alert("Acesso Negado!"); }
+        }
 
         function escreverNoTerminal(texto) {
             terminal.innerHTML += `<div class="mt-2">> ${texto}</div>`;
@@ -78,22 +96,20 @@
         }
 
         function registrar() {
+            if(!isLogged) return alert("Acesse a Área do Gestor!");
             const placa = document.getElementById('user-placa').value;
-            if(!placa) return alert("Erro: Campo Placa é obrigatório!");
-            escreverNoTerminal(`<span class="text-white font-bold">--- PROTOCOLO DE REGISTRO INICIADO ---</span>`);
-            escreverNoTerminal(`[LOG] Geometria de localização registrada para Veículo Placa: ${placa.toUpperCase()}`);
-            setTimeout(() => {
-                escreverNoTerminal(`<span class="text-blue-400 font-bold">[SUCESSO] Dados autenticados e salvos na base Mongaguá.</span>`);
-                document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
-                b1Ok = true;
-            }, 600);
+            if(!placa || !document.getElementById('doc-input').files[0]) return alert("Preencha os dados!");
+            escreverNoTerminal(`<span class="text-blue-400">[OK] Dados do veículo ${placa.toUpperCase()} vinculados.</span>`);
+            document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
+            b1Ok = true;
         }
 
         async function analisarIA() {
+            if(!isLogged) return alert("Acesse a Área do Gestor!");
             const file = document.getElementById('foto-sinistro').files[0];
-            if (!file) return alert("Selecione a foto da avaria para avaliação!");
+            if (!file) return alert("Selecione a foto!");
             const img = document.getElementById('img-engine');
-            escreverNoTerminal(`<span class="text-white font-bold">--- INICIANDO AVALIAÇÃO VISUAL GEORREFERENCIADA ---</span>`);
+            escreverNoTerminal(`<span class="text-white">--- INICIANDO AVALIAÇÃO VISUAL ---</span>`);
             const reader = new FileReader();
             reader.onload = (e) => {
                 img.src = e.target.result;
@@ -102,38 +118,38 @@
                     const tags = predictions.map(p => p.className.toLowerCase()).join(' ');
                     const conf = Math.round(predictions[0].probability * 100);
                     const pecaDet = ['bumper', 'grille', 'door', 'car', 'vehicle'].some(t => tags.includes(t));
-
+                    let grav, acao, obs;
                     if (pecaDet && conf > 22) {
-                        let grav, acao, obs;
-                        let peca = file.name.toLowerCase().includes('porta') ? "Porta Lateral" : "Para-choque / Painel Externo";
-                        if (conf > 70) { grav = "BAIXA"; acao = "REPARAR (Polimento/Pintura)"; obs = "Dano estético superficial."; }
-                        else if (conf > 40 || tags.includes('bumper')) { grav = "MÉDIA"; acao = "REPARAR (Funilaria Técnica)"; obs = "Deformação passível de recuperação térmica."; }
-                        else { grav = "ALTA"; acao = "SUBSTITUIR COMPONENTE"; obs = "Avaria estrutural detectada em fixadores."; }
-
-                        escreverNoTerminal(`[IA_DEBUG] Identificação: ${predictions[0].className} (${conf}%)`);
-                        escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER TÉCNICO REGULA SP ---</span>`);
-                        escreverNoTerminal(`LOCAL: Av. Marina, Mongaguá | GRAVIDADE: <span class="font-bold underline">${grav}</span>`);
-                        escreverNoTerminal(`RECOMENDAÇÃO: ${acao} | OBS: ${obs}`);
-                        document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
-                        b2Ok = true;
-                    } else { 
-                        escreverNoTerminal(`<span class="text-red-500 font-bold">--- PARECER TÉCNICO CRÍTICO (MONTA GRAVE) ---</span>`);
-                        escreverNoTerminal(`GRAVIDADE: PERDA TOTAL (PT) | LOCAL: Mongaguá/SP`);
-                        escreverNoTerminal(`ANÁLISE: Destruição severa identificada. Inviabilidade de recuperação.`);
-                        b2Ok = true;
-                    }
+                        if (conf > 70) { grav = "BAIXA"; acao = "REPARAR (Polimento)"; obs = "Dano superficial."; }
+                        else if (conf > 40 || tags.includes('bumper')) { grav = "MÉDIA"; acao = "REPARAR (Funilaria)"; obs = "Recuperação térmica."; }
+                        else { grav = "ALTA"; acao = "SUBSTITUIR"; obs = "Dano em fixadores estruturais."; }
+                    } else { grav = "CRÍTICA (PT)"; acao = "PERDA TOTAL"; obs = "Destruição severa."; }
+                    laudoFinal = `GRAVIDADE: ${grav} | AÇÃO: ${acao} | OBS: ${obs}`;
+                    escreverNoTerminal(`<span class="text-purple-400 font-bold">--- PARECER: ${laudoFinal} ---</span>`);
+                    document.getElementById('step-2').classList.replace('border-slate-700', 'border-green-500');
+                    b2Ok = true;
                 };
             };
             reader.readAsDataURL(file);
         }
 
-        function concluir() {
-            escreverNoTerminal(`<span class="text-white font-bold">--- FINALIZANDO PROCESSO PERICIAL ---</span>`);
-            if (b1Ok && b2Ok) {
-                escreverNoTerminal(`<span class="text-green-500 font-bold">[APROVADO] Sinistro validado via GPS e IA em Mongaguá. OS Gerada.</span>`);
-            } else {
-                escreverNoTerminal(`<span class="text-yellow-500 font-bold">[PENDÊNCIA] Fluxo incompleto. Verifique os campos de Registro e Avaliação.</span>`);
-            }
+        function concluirEPDF() {
+            if (!isLogged) return alert("Ação bloqueada: Requer login ADM.");
+            if (!b1Ok || !b2Ok) return alert("Complete os passos 1 e 2!");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const placa = document.getElementById('user-placa').value.toUpperCase();
+            doc.setFontSize(22); doc.setTextColor(0, 102, 204); doc.text("REGULA SP - LAUDO PERICIAL", 20, 30);
+            doc.setFontSize(10); doc.setTextColor(100); doc.text("Gestor Responsável: ADM | Base: Mongaguá/SP", 20, 40);
+            doc.line(20, 45, 190, 45);
+            doc.setFontSize(14); doc.setTextColor(0); doc.text("DADOS DO REGISTRO", 20, 60);
+            doc.setFontSize(12); doc.text(`CPF: ${document.getElementById('user-cpf').value}`, 25, 70); 
+            doc.text(`Placa: ${placa}`, 25, 80); doc.text(`Sinistro: ${document.getElementById('user-sinistro').value}`, 25, 90);
+            doc.text("AVALIAÇÃO TÉCNICA (IA)", 20, 110);
+            doc.setFontSize(11); doc.text(laudoFinal, 25, 120);
+            doc.setFontSize(9); doc.text(`Gerado em: ${new Date().toLocaleString()} | GPS: -24.0928, -46.6214`, 20, 280);
+            doc.save(`Laudo_RegulaSP_${placa}.pdf`);
+            escreverNoTerminal(`<span class="text-green-500 font-bold">[PDF] Relatório emitido pelo Gestor ADM.</span>`);
         }
     </script>
 </body>
