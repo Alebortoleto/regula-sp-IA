@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <title>Regula SP - Master Engine v13.3</title>
+    <title>Regula SP - Master Engine v13.4</title>
     <style>
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -34,7 +34,7 @@
         <header class="flex justify-between items-center border-b border-slate-700 pb-6 mb-8">
             <div>
                 <h1 class="text-4xl font-black text-blue-500 italic uppercase tracking-tighter">Regula SP</h1>
-                <p class="text-slate-400 text-sm italic uppercase tracking-widest">Matriz de Cálculo de Sinistralidade v13.3</p>
+                <p class="text-slate-400 text-sm italic uppercase tracking-widest">Matriz de Cálculo de Sinistralidade v13.4</p>
             </div>
             <div class="flex gap-4 items-center">
                 <button onclick="resetGeral()" class="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-3 py-2 rounded text-[9px] font-black uppercase transition-all border border-red-600/30">Limpar Tudo</button>
@@ -102,7 +102,7 @@
                             </div>
                             <div id="area-${s.id}" class="space-y-4">
                                 <input type="file" id="foto-${s.id}" accept="image/*" multiple class="w-full text-[9px] text-slate-500 bg-slate-900 p-2 rounded border border-slate-700">
-                                <button onclick="analisarSetor('${s.id}')" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black uppercase hover:bg-blue-500 shadow-lg transition-all">Avaliar Região</button>
+                                <button onclick="analisarSetor('${s.id}')" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black uppercase hover:bg-blue-500 shadow-lg transition-all">Avaliar</button>
                                 <div id="prog-${s.id}" class="hidden"><div class="w-full bg-black h-1.5 rounded-full"><div id="bar-${s.id}" class="bg-blue-500 h-1.5 w-0 transition-all"></div></div></div>
                                 <div id="count-${s.id}" class="text-[8px] text-blue-400 font-bold uppercase text-center font-mono mt-1"></div>
                             </div>
@@ -125,13 +125,13 @@
                 </div>
             </div>
             <div class="mt-8 flex flex-col md:flex-row gap-4 justify-center">
-                <button onclick="consolidarResultados()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl transition-all">Consolidar Parecer</button>
+                <button onclick="consolidarResultados()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl transition-all">Processar Parecer</button>
                 <button id="btn-pdf-final" onclick="gerarPDFFinal()" class="hidden bg-green-600 hover:bg-green-500 text-white font-black text-[11px] py-4 px-10 rounded uppercase tracking-widest shadow-xl animate-bounce">Gerar PDF</button>
             </div>
         </div>
 
         <main id="terminal" class="bg-black rounded-2xl p-6 border border-slate-700 h-40 overflow-y-auto font-mono text-[10px] text-green-500 border-t-4 border-t-blue-500 shadow-2xl">
-            <div>> [SISTEMA] Motor v13.3 Master em Mongaguá/SP.</div>
+            <div>> [SISTEMA] Motor v13.4 Master em Mongaguá/SP.</div>
         </main>
         
         <img id="img-engine" style="position: fixed; bottom: 0; right: 0; width: 224px; height: 224px; visibility: hidden;">
@@ -237,9 +237,11 @@
                             const conf = Math.round(predictions[0].probability * 100);
                             let valorFoto = 0; let descFoto = "";
                             
-                            if (conf < 25) { valorFoto = 100; descFoto = "TROCAR PEÇA (Crítico)"; }
-                            else if (conf < 50) { valorFoto = 50; descFoto = "REPARAR PEÇA (Médio)"; }
-                            else { valorFoto = 0; descFoto = "SEM DANO / LEVE"; }
+                            // NOVA LÓGICA DE PESOS v13.4
+                            if (conf < 20) { valorFoto = 100; descFoto = "TROCAR PEÇA (Crítico)"; }
+                            else if (conf < 40) { valorFoto = 50; descFoto = "REPARAR PEÇA (Médio)"; }
+                            else if (conf < 65) { valorFoto = 25; descFoto = "BAIXO IMPACTO (Estético)"; }
+                            else { valorFoto = 0; descFoto = "SEM DANOS DETECTADOS"; }
 
                             if (valorFoto > maiorDanoSetor) {
                                 maiorDanoSetor = valorFoto; parecerSetor = descFoto; imgFinal = e.target.result;
@@ -253,7 +255,7 @@
             }
             
             historico = historico.filter(h => h.setor !== id);
-            historico.push({ setor: id, parecer: parecerSetor, valor: maiorDanoSetor, imgData: imgFinal, arquivo: input.files[0].name });
+            historico.push({ setor: id, parecer: parecerSetor, valor: maiorDanoSetor, imgData: imgFinal });
             
             bar.style.width = "100%";
             document.getElementById(`box-${id}`).classList.replace('border-slate-700', 'border-green-500');
@@ -262,7 +264,7 @@
         }
 
         function consolidarResultados() {
-            if(historico.length === 0) return alert("Nenhuma avaliação realizada!");
+            if(historico.length === 0) return alert("Nenhuma avaliação técnica realizada!");
             const ids = ['esq', 'dir', 'front', 'rear'];
             let somaTotal = 0;
             ids.forEach(id => {
@@ -289,7 +291,7 @@
             
             doc.setFontSize(22); doc.setTextColor(0, 102, 204); doc.text("REGULA SP - PARECER DE IA", 20, 20);
             doc.setFontSize(9); doc.setTextColor(100); 
-            doc.text(`Mongaguá/SP | Sinistro: ${document.getElementById('user-sinistro').value} | Placa: ${placa} | CPF: ${document.getElementById('user-cpf').value}`, 20, 28);
+            doc.text(`Mongaguá/SP | Placa: ${placa} | CPF: ${document.getElementById('user-cpf').value}`, 20, 28);
             doc.line(20, 31, 190, 31);
 
             let y = 45;
