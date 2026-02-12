@@ -17,7 +17,11 @@ Atualmente, o projeto está a ser documentado por blocos modulares:
 - **Tecnologias:** Biometria Facial, Geofencing e OCR de documentos (CNH/CRLV).
 - **Diferencial:** Motor de análise de voz para detecção de emergências.
 
----
+### [Bloco 2: Vistoria Digital](./bloco_2_vistoria_ia.json)
+- **Objetivo:** Análise automática de danos usando visão computacional.
+- **Tecnologias:** Detecção de objetos, análise de metadados e estimativa de custos por IA.
+- **Diferencial:** Guia de captura em tempo real e prevenção de fraudes visuais.
+
 
 ## 🛠️ Tecnologias Sugeridas
 - **Backend:** Python (FastAPI)
