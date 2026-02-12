@@ -7,13 +7,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <title>Regula SP - Master Engine v11.5</title>
+    <title>Regula SP - Master Engine v11.6</title>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div id="login-modal" class="fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
         <div class="bg-slate-800 p-8 rounded-2xl border-2 border-blue-600 shadow-2xl max-w-sm w-full">
             <h2 class="text-2xl font-bold text-blue-500 italic mb-1 uppercase tracking-tighter">Acesso Restrito</h2>
-            <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest italic text-center">Gestão Mongaguá</p>
+            <p class="text-slate-400 text-[10px] mb-6 uppercase tracking-widest text-center italic">Gestão Mongaguá</p>
             <div class="space-y-4">
                 <input type="text" id="login-user" placeholder="Usuário (ADM)" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs outline-none focus:border-blue-500">
                 <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-xs outline-none focus:border-blue-500">
@@ -38,22 +38,22 @@
                     <input type="text" id="user-placa" placeholder="Placa do Veículo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
                     <input type="text" id="user-cpf" placeholder="CPF do Segurado" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
                     <input type="text" id="user-sinistro" placeholder="Nº do Sinistro" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] outline-none focus:border-blue-500">
-                    <label class="text-[8px] text-slate-500 block font-bold uppercase">Documento (CNH/CRLV)</label>
-                    <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-2">
-                    <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest">Salvar e Abrir</button>
+                    <label class="text-[8px] text-slate-500 block font-bold uppercase">Anexo de Documento (CNH/CRLV)</label>
+                    <input type="file" id="doc-input" class="w-full text-[9px] text-slate-500 mb-2 file:bg-slate-700 file:text-white file:border-0 file:rounded file:px-2 file:py-1">
+                    <button onclick="registrar()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase tracking-widest transition-all">Salvar Registro</button>
                 </div>
             </div>
 
             <div id="step-2" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-2xl">
-                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">02. Análise Visual</h3>
-                <p class="text-[9px] text-slate-500 mb-3 italic">Detector de Fraude Biológica Ativo</p>
-                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-3">
+                <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">02. Avaliação Visual</h3>
+                <p class="text-[9px] text-slate-500 mb-3 italic">Detecção de Avarias e Filtro Biológico</p>
+                <input type="file" id="foto-sinistro" accept="image/*" class="w-full text-[9px] text-slate-500 mb-4 file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-3 file:py-1">
                 <button onclick="analisarIA()" class="w-full bg-blue-600 py-2 rounded text-[10px] font-black hover:bg-blue-500 uppercase shadow-lg">Avaliar Evidência</button>
             </div>
 
             <div id="step-3" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 shadow-2xl">
                 <h3 class="font-bold text-white mb-4 text-[11px] italic uppercase text-blue-400 underline underline-offset-8">03. Encerramento</h3>
-                <p class="text-[9px] text-slate-500 mb-4 text-center italic">Relatório Master com todos os dados e fotos.</p>
+                <p class="text-[9px] text-slate-500 mb-4 text-center italic">Emissão de Laudo Master em PDF</p>
                 <button onclick="concluirEPDF()" class="w-full bg-green-600 py-3 rounded text-[10px] font-black hover:bg-green-500 uppercase tracking-widest shadow-xl">Emitir Laudo Master</button>
             </div>
         </div>
@@ -91,10 +91,11 @@
         function registrar() {
             const p = document.getElementById('user-placa').value;
             const s = document.getElementById('user-sinistro').value;
+            const c = document.getElementById('user-cpf').value;
             const d = document.getElementById('doc-input').files[0];
-            if(!isLogged || !p || !s || !d) return alert("Erro: Preencha Placa, Sinistro e anexe o documento!");
+            if(!isLogged || !p || !s || !c || !d) return alert("Erro: Preencha Placa, Sinistro, CPF e anexe o documento!");
             
-            escreverNoTerminal(`<span class="text-blue-400 font-bold">[OK] Registro salvo. Placa: ${p.toUpperCase()} | OS: ${s}</span>`);
+            escreverNoTerminal(`<span class="text-blue-400 font-bold">[OK] Registro salvo. Placa: ${p.toUpperCase()} | Sinistro: ${s}</span>`);
             document.getElementById('step-1').classList.replace('border-blue-600', 'border-green-500');
             b1Ok = true;
         }
@@ -115,9 +116,9 @@
                         return escreverNoTerminal(`<span class="text-yellow-500">[BLOQUEIO] Objeto biológico detectado. Foto rejeitada.</span>`);
                     }
                     let setor = tags.includes('bumper') ? "Frontal/Traseira" : tags.includes('door') ? "Lateral" : "Geral";
-                    let grav = Math.round(predictions[0].probability * 100) > 50 ? "Baixa/Média" : "Alta/PT";
+                    let grav = Math.round(predictions[0].probability * 100) > 45 ? "Baixa/Média" : "Alta/PT";
                     historicoVistorias.push({ arquivo: file.name, setor: setor, laudo: grav });
-                    escreverNoTerminal(`<span class="text-purple-400">[REGISTRADO] ${setor} | Gravidade: ${grav}</span>`);
+                    escreverNoTerminal(`<span class="text-purple-400">[REGISTRADO] ${setor} | Parecer: ${grav}</span>`);
                 };
             };
             reader.readAsDataURL(file);
@@ -135,15 +136,14 @@
             doc.setFontSize(10); doc.setTextColor(100); doc.text(`ADM: Mongaguá/SP | GPS: -24.0928, -46.6214`, 20, 40);
             doc.line(20, 45, 190, 45);
             
-            doc.setFontSize(12); doc.setTextColor(0); 
-            doc.text("DADOS DO VEÍCULO E SEGURADO", 20, 55);
+            doc.setFontSize(12); doc.setTextColor(0); doc.text("DADOS DO SINISTRO E SEGURADO", 20, 55);
             doc.setFontSize(10); doc.setTextColor(80);
             doc.text(`PLACA: ${placa}`, 25, 65);
             doc.text(`CPF: ${cpf}`, 25, 72);
-            doc.text(`SINISTRO: ${sinistro}`, 25, 79);
+            doc.text(`Nº SINISTRO: ${sinistro}`, 25, 79);
             doc.text(`DOC ANEXADO: ${docNome}`, 25, 86);
 
-            doc.setFontSize(12); doc.setTextColor(0); doc.text("EVIDÊNCIAS DE AVARIAS", 20, 105);
+            doc.setFontSize(12); doc.setTextColor(0); doc.text("EVIDÊNCIAS DE AVARIAS COLETADAS", 20, 105);
             let y = 115;
             historicoVistorias.forEach((v, i) => {
                 doc.setFontSize(9); doc.text(`${i+1}. ARQUIVO: ${v.arquivo} | SETOR: ${v.setor} | LAUDO: ${v.laudo}`, 25, y);
@@ -151,8 +151,10 @@
             });
 
             doc.setFontSize(11); doc.setTextColor(0, 153, 51); doc.text("PARECER FINAL: SINISTRO VALIDADO E AUTORIZADO.", 20, y + 10);
-            doc.save(`Relatorio_Master_${placa}.pdf`);
-            escreverNoTerminal(`<span class="text-green-500 font-bold">[PDF] Relatório Master emitido.</span>`);
+            doc.setFontSize(8); doc.setTextColor(150); doc.text(`Gerado em: ${new Date().toLocaleString()}`, 20, 285);
+            
+            doc.save(`Laudo_RegulaSP_${placa}.pdf`);
+            escreverNoTerminal(`<span class="text-green-500 font-bold">[PDF] Laudo Master emitido. Processo finalizado.</span>`);
         }
     </script>
 </body>
